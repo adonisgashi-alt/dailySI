@@ -196,3 +196,32 @@ test("lawsuits against a lab are filed under policy, launches under labs", async
   assert.equal(sectionFor("Eight US states sue OpenAI, claiming ChatGPT harms young users").slug, "policy");
   assert.equal(sectionFor("OpenAI unveils GPT-7, claiming week-long autonomous reasoning").slug, "labs");
 });
+
+test("stories that only share common names (OpenAI, ChatGPT) are not merged", () => {
+  const common = [
+    "OpenAI launches ChatGPT shopping agent",
+    "ChatGPT gets new memory features, OpenAI says",
+    "OpenAI CEO talks ChatGPT growth at conference",
+    "Schools weigh ChatGPT rules as OpenAI pushes education deals",
+    "OpenAI ChatGPT outage hits users worldwide",
+    "OpenAI expands ChatGPT voice mode to more countries",
+    "Developers react to OpenAI ChatGPT API price cut",
+    "OpenAI adds ChatGPT group chats",
+  ].map((t, i) => item(t, `Outlet ${i}`, 5));
+  const ed = editDesk(
+    [
+      ...common,
+      item("FBI says an OpenAI engineer used his wife's ChatGPT account to plant a secret recording device", "Ars Technica", 13),
+      item("OpenAI engineer used wife's ChatGPT account to plant recording device, FBI says", "The Register", 12),
+      item("OpenAI sued by 8 states over ChatGPT safety concerns", "Law Commentary", 3),
+      item("Eight US states sue OpenAI, claiming ChatGPT harms young users", "NBC News", 1),
+      item("Multiple states sue OpenAI, accusing it of harming children and deceiving parents", "SiliconANGLE", 2),
+    ],
+    now,
+  );
+  const fbi = ed.confirmed.find((s) => /FBI/.test(s.headline))!;
+  const suit = ed.confirmed.find((s) => /states/i.test(s.headline))!;
+  assert.ok(fbi && suit && fbi.id !== suit.id, ed.confirmed.map((s) => `${s.headline} [${s.reports.length}]`).join(" || "));
+  assert.equal(fbi.reports.length, 2);
+  assert.equal(suit.reports.length, 3);
+});

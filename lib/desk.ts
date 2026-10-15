@@ -49,6 +49,14 @@ const STOP = new Set(
   ),
 );
 
+// Names and beat words that appear across many unrelated stories. Sharing them
+// is not evidence that two headlines describe the same event.
+const GENERIC = new Set(
+  "openai chatgpt anthropic claude google deepmind gemini meta microsoft copilot nvidia apple amazon xai grok musk altman ai a.i artificial intelligence model llm agi chatbot tech company firm report startup user people new us uk eu china".split(
+    " ",
+  ),
+);
+
 // Deliberately crude stemmer: enough to match "reasoning"/"reason",
 // "unveils"/"unveiled", "autonomously"/"autonomous".
 const NUMBERS: Record<string, string> = { one: "1", two: "2", three: "3", four: "4", five: "5", six: "6", seven: "7", eight: "8", nine: "9", ten: "10", eleven: "11", twelve: "12", dozen: "12", hundred: "100", thousand: "1000", million: "1000000", billion: "1000000000" };
@@ -118,24 +126,28 @@ export function cluster(reports: Report[]): Report[][] {
   const idf = (t: string) => Math.log(1 + n / (df.get(t) ?? 1));
   const weight = (ts: Set<string>) => [...ts].reduce((s, t) => s + idf(t), 0);
 
+  // Shared words that say nothing about *which* event two headlines describe.
+  const evidence = (shared: string[]) => shared.filter((t) => !GENERIC.has(t)).length;
+  const pairScore = (a: Set<string>, b: Set<string>, minEvidence: number) => {
+    const shared = [...a].filter((t) => b.has(t));
+    if (shared.length < 2 || evidence(shared) < minEvidence) return 0;
+    const raw = shared.reduce((s, t) => s + idf(t), 0) / Math.min(weight(a), weight(b));
+    // Words shared within a cluster are, by construction, less rare than
+    // the words unique to each headline, so several shared words lower the bar.
+    return shared.length >= 3 ? raw * 1.3 : raw;
+  };
+
   const sorted = [...reports].sort((a, b) => a.publishedAt - b.publishedAt);
   const clusters: { members: Report[]; sets: Set<string>[] }[] = [];
 
   for (const r of sorted) {
     const a = new Set(r.tokens);
-    const wa = weight(a);
     let best = -1;
     let bestScore = 0;
     clusters.forEach((c, ci) => {
       c.members.forEach((m, mi) => {
         if (Math.abs(m.publishedAt - r.publishedAt) > WINDOW_MS) return;
-        const b = c.sets[mi];
-        const shared = [...a].filter((t) => b.has(t));
-        if (shared.length < 2) return;
-        const raw = shared.reduce((s, t) => s + idf(t), 0) / Math.min(wa, weight(b));
-        // Words shared within a cluster are, by construction, less rare than
-        // the words unique to each headline, so several shared words lower the bar.
-        const score = shared.length >= 3 ? raw * 1.3 : raw;
+        const score = pairScore(a, c.sets[mi], 1);
         if (score > bestScore) {
           bestScore = score;
           best = ci;
@@ -152,25 +164,19 @@ export function cluster(reports: Report[]): Report[][] {
 
   // Second pass: merge groups that cover the same event but formed separately
   // (e.g. "OpenAI sued by 8 states over ChatGPT safety" and "Eight US states
-  // sue OpenAI, claiming ChatGPT harms young users").
-  const pairScore = (a: Set<string>, b: Set<string>) => {
-    const shared = [...a].filter((t) => b.has(t));
-    if (shared.length < 2) return 0;
-    const raw = shared.reduce((s, t) => s + idf(t), 0) / Math.min(weight(a), weight(b));
-    return shared.length >= 3 ? raw * 1.3 : raw;
-  };
-  const near = (x: (typeof clusters)[number], y: (typeof clusters)[number]) => {
-    let best = 0;
-    x.members.forEach((m, i) =>
-      y.members.forEach((o, j) => {
-        if (Math.abs(m.publishedAt - o.publishedAt) <= WINDOW_MS) best = Math.max(best, pairScore(x.sets[i], y.sets[j]));
-      }),
+  // sue OpenAI, claiming ChatGPT harms young users"). Two specific headlines must
+  // match closely; a big group's combined vocabulary is never compared, since it
+  // overlaps with almost any story about the same company.
+  const near = (x: (typeof clusters)[number], y: (typeof clusters)[number]) =>
+    x.members.some((m, i) =>
+      y.members.some(
+        (o, j) =>
+          Math.abs(m.publishedAt - o.publishedAt) <= WINDOW_MS &&
+          // Three or more event-specific shared words (e.g. "states", "sue", "harm")
+          // are strong evidence on their own, so the score bar can be lower.
+          (pairScore(x.sets[i], y.sets[j], 3) >= 0.4 || pairScore(x.sets[i], y.sets[j], 2) >= 0.5),
+      ),
     );
-    if (best < 0.4) return false;
-    const ux = new Set(x.sets.flatMap((st) => [...st]));
-    const shared = [...new Set(y.sets.flatMap((st) => [...st]))].filter((t) => ux.has(t));
-    return shared.length >= 3;
-  };
   for (let merged = true; merged; ) {
     merged = false;
     outer: for (let i = 0; i < clusters.length; i++)
@@ -218,10 +224,16 @@ export function verify(members: Report[]): Story {
   // Headline: earliest non-primary report tends to be the clearest news framing;
   // fall back to the primary announcement.
   const earliest = [...reports].sort((a, b) => a.publishedAt - b.publishedAt);
-  const lead = earliest.find((r) => r.summary) ?? earliest[0];
+  // Headline from the most representative report (shares the most event-specific
+  // words with the others), so one stray report can't title the story. Ties go to the earliest.
+  const sets = earliest.map((r) => new Set(r.tokens.filter((t) => !GENERIC.has(t))));
+  const centrality = sets.map((a, i) => sets.reduce((sum, b, j) => (i === j ? sum : sum + [...a].filter((t) => b.has(t)).length), 0));
+  const best = centrality.indexOf(Math.max(...centrality));
+  const headliner = earliest[best];
+  const lead = (headliner.summary ? headliner : undefined) ?? earliest.find((r) => r.summary) ?? earliest[0];
   return {
     id: hashId(earliest[0].link),
-    headline: earliest[0].title,
+    headline: headliner.title,
     summary: lead.summary,
     reports,
     outlets,

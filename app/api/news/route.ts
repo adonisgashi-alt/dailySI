@@ -1,4 +1,5 @@
 import { getEdition } from "@/lib/news";
+import { storyPath } from "@/lib/slug";
 
 export const dynamic = "force-static";
 
@@ -14,7 +15,7 @@ export async function GET() {
       stories: ed.stories.map(({ reports, section, ...s }) => ({
         ...s,
         section: section.slug,
-        url: `/story/${s.id}`,
+        url: storyPath(s),
         reports: reports.map(({ tokens, ...r }) => r),
       })),
       queue: ed.queue.map((q) => ({ id: q.id, headline: q.headline, outlet: q.outlets[0], link: q.reports[0].link, lastUpdate: q.lastUpdate })),

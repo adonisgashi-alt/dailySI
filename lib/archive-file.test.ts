@@ -41,3 +41,17 @@ test("a story whose id changed is merged, not duplicated, and keeps an alias", (
   assert.equal(state.ids.bbb222, "2026-10-15");
   assert.deepEqual(dayIndex([], state.days), [{ date: "2026-10-15", count: 1 }]);
 });
+
+test("a wrongly merged archived story is split when the desk separates the events", () => {
+  const state: ArchiveState = { days: new Map(), ids: {} };
+  // An earlier, buggy desk filed both events as one story (id "fbi1").
+  fileStories(state, [story("fbi1", ["https://fbi/1", "https://suit/1", "https://suit/2"], { editorial: { summary: "x", whyItMatters: "", keyFacts: [], sourcesAgree: true, note: "", model: "m", writtenAt: T } })], empty);
+  // Now the desk sees two separate stories.
+  fileStories(state, [story("fbi1", ["https://fbi/1", "https://fbi/2"]), story("suit9", ["https://suit/1", "https://suit/2", "https://suit/3"])], empty);
+  const day = state.days.get("2026-10-15")!;
+  const fbi = day.stories.find((x) => x.id === "fbi1")!;
+  const suit = day.stories.find((x) => x.id === "suit9")!;
+  assert.deepEqual(fbi.reports.map((r) => r.link).sort(), ["https://fbi/1", "https://fbi/2"]);
+  assert.equal(fbi.editorial, undefined);
+  assert.equal(suit.reports.length, 3);
+});

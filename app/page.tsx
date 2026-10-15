@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { storyPath } from "@/lib/slug";
 import { getEdition, type EditionStory } from "@/lib/news";
 import { SECTIONS } from "@/lib/sections";
 import { SITE } from "@/lib/site";
@@ -15,7 +16,7 @@ function Package({ s, now, flip, lead }: { s: EditionStory; now: number; flip?: 
     <article className={`package${flip ? " flip" : ""}`}>
       <div>
         <SectionKicker section={s.section} />
-        <Link href={`/story/${s.id}`}>
+        <Link href={storyPath(s)}>
           <h2 className={lead ? "hl-xl" : "hl-l"}>{s.headline}</h2>
         </Link>
         {dek(s) && <p className={`summary${lead ? " summary-l" : ""}`}>{clip(dek(s), lead ? 300 : 200)}</p>}
@@ -31,7 +32,7 @@ function Package({ s, now, flip, lead }: { s: EditionStory; now: number; flip?: 
           </ul>
         )}
       </div>
-      <Link href={`/story/${s.id}`} tabIndex={-1} aria-hidden="true">
+      <Link href={storyPath(s)} tabIndex={-1} aria-hidden="true">
         <ArtFigure art={s.art} caption priority={lead} />
       </Link>
     </article>
@@ -41,9 +42,9 @@ function Package({ s, now, flip, lead }: { s: EditionStory; now: number; flip?: 
 function Small({ s, now, image = true }: { s: EditionStory; now: number; image?: boolean }) {
   return (
     <article>
-      {image && <Link href={`/story/${s.id}`} tabIndex={-1} aria-hidden="true"><ArtFigure art={s.art} /></Link>}
+      {image && <Link href={storyPath(s)} tabIndex={-1} aria-hidden="true"><ArtFigure art={s.art} /></Link>}
       <SectionKicker section={s.section} />
-      <Link href={`/story/${s.id}`}><h3 className="hl-m">{s.headline}</h3></Link>
+      <Link href={storyPath(s)}><h3 className="hl-m">{s.headline}</h3></Link>
       {dek(s) && <p className="summary">{clip(dek(s), 140)}</p>}
       <StoryMeta story={s} now={now} />
     </article>
@@ -108,7 +109,7 @@ export default async function FrontPage() {
                 {mostCorroborated.map((s) => (
                   <li key={s.id}>
                     <div>
-                      <Link href={`/story/${s.id}`}><h3 className="hl-s">{s.headline}</h3></Link>
+                      <Link href={storyPath(s)}><h3 className="hl-s">{s.headline}</h3></Link>
                       <div className="meta"><span>{s.outlets.length} outlets</span><span>{ago(s.lastUpdate, now)}</span></div>
                     </div>
                   </li>

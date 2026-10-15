@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { storyPath } from "@/lib/slug";
 import { getEdition } from "@/lib/news";
 import { SECTIONS } from "@/lib/sections";
 import { SITE } from "@/lib/site";
@@ -26,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/privacy", "monthly", 0.2),
     page("/archive", "daily", 0.6),
     ...days.map((d) => ({ url: `${SITE.url}/archive/${d.date}`, lastModified: now, changeFrequency: "daily" as const, priority: 0.5 })),
-    ...ed.stories.map((s) => ({ url: `${SITE.url}/story/${s.id}`, lastModified: new Date(s.lastUpdate), changeFrequency: "daily" as const, priority: 0.7 })),
-    ...recent.filter((s) => !live.has(s.id)).map((s) => ({ url: `${SITE.url}/story/${s.id}`, lastModified: new Date(s.lastUpdate), changeFrequency: "weekly" as const, priority: 0.5 })),
+    ...ed.stories.map((s) => ({ url: `${SITE.url}${storyPath(s)}`, lastModified: new Date(s.lastUpdate), changeFrequency: "daily" as const, priority: 0.7 })),
+    ...recent.filter((s) => !live.has(s.id)).map((s) => ({ url: `${SITE.url}${storyPath(s)}`, lastModified: new Date(s.lastUpdate), changeFrequency: "weekly" as const, priority: 0.5 })),
   ];
 }

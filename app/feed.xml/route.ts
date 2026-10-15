@@ -1,4 +1,5 @@
 import { getEdition } from "@/lib/news";
+import { storyPath } from "@/lib/slug";
 import { SITE } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -12,7 +13,7 @@ export async function GET() {
   const items = [...ed.stories]
     .sort((a, b) => b.lastUpdate - a.lastUpdate)
     .map((s) => {
-      const url = `${SITE.url}/story/${s.id}`;
+      const url = `${SITE.url}${storyPath(s)}`;
       const text = s.editorial?.summary.split(/\n\s*\n/)[0] || s.summary;
       const body = `${text ? text + " " : ""}${s.basis} Sources: ${s.reports.map((r) => r.outlet).join(", ")}.`;
       return `<item><title>${esc(s.headline)}</title><link>${url}</link><guid isPermaLink="true">${url}</guid><pubDate>${new Date(s.firstSeen).toUTCString()}</pubDate><category>${esc(s.section.name)}</category><description>${esc(body)}</description></item>`;

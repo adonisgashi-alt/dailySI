@@ -45,6 +45,13 @@ export function fileStories(state: ArchiveState, stories: ArchivedStory[], loadD
     return state.days.get(date)!;
   };
 
+  // Which live story each report belongs to right now. Used to heal stories that
+  // earlier versions of the desk wrongly merged: a report belongs to one story only.
+  const owner = new Map<string, string>();
+  for (const s of stories) for (const r of s.reports) owner.set(r.link, s.id);
+  const live = new Set(stories.map((s) => s.id));
+  const isOtherLive = (x: ArchivedStory, id: string) => [x.id, ...(x.aliases ?? [])].some((k) => k !== id && live.has(k));
+
   for (const s of stories) {
     const links = new Set(s.reports.map((r) => r.link));
     let date = state.ids[s.id];
@@ -53,7 +60,8 @@ export function fileStories(state: ArchiveState, stories: ArchivedStory[], loadD
     if (!found) {
       // Same event filed under another id (its earliest report changed)?
       for (const [d, file] of state.days) {
-        found = file.stories.find((x) => x.reports.some((r) => links.has(r.link)));
+        // Never fold a story into a different story that is itself still on the wire.
+        found = file.stories.find((x) => !isOtherLive(x, s.id) && x.reports.some((r) => links.has(r.link)));
         if (found) {
           date = d;
           break;
@@ -65,7 +73,14 @@ export function fileStories(state: ArchiveState, stories: ArchivedStory[], loadD
       day(date).stories.push({ ...s, reports: [...s.reports].sort((a, b) => b.publishedAt - a.publishedAt).slice(0, MAX_REPORTS) });
     } else {
       const file = day(date!);
-      const next = merge(found, s);
+      const mine = new Set([found.id, ...(found.aliases ?? []), s.id]);
+      const kept = found.reports.filter((r) => !owner.has(r.link) || mine.has(owner.get(r.link)!));
+      const healed: ArchivedStory =
+        kept.length === found.reports.length
+          ? found
+          : // Reports now belong to another story: drop them, and the write-up based on them.
+            { ...found, reports: kept, outlets: [...new Set(kept.map((r) => r.outlet))], confidence: s.confidence, basis: s.basis, editorial: undefined };
+      const next = merge(healed, s);
       if (JSON.stringify(next) === JSON.stringify(found)) {
         state.ids[s.id] = date!;
         continue;

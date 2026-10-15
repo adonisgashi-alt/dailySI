@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { storyPath } from "@/lib/slug";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEdition } from "@/lib/news";
@@ -41,11 +42,11 @@ export default async function SectionPage({ params }: Props) {
           <article className="list-row" key={s.id}>
             <div className="when">{new Date(s.lastUpdate).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC" })} UTC</div>
             <div>
-              <Link href={`/story/${s.id}`}><h2 className="hl-l" style={{ marginTop: 0 }}>{s.headline}</h2></Link>
+              <Link href={storyPath(s)}><h2 className="hl-l" style={{ marginTop: 0 }}>{s.headline}</h2></Link>
               {dek(s) && <p className="summary">{clip(dek(s), 260)}</p>}
               <StoryMeta story={s} now={now} />
             </div>
-            <Link href={`/story/${s.id}`} tabIndex={-1} aria-hidden="true"><ArtFigure art={s.art} /></Link>
+            <Link href={storyPath(s)} tabIndex={-1} aria-hidden="true"><ArtFigure art={s.art} /></Link>
           </article>
         ))
       )}

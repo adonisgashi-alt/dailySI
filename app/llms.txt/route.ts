@@ -1,4 +1,5 @@
 import { getEdition } from "@/lib/news";
+import { storyPath } from "@/lib/slug";
 import { SECTIONS } from "@/lib/sections";
 import { SITE } from "@/lib/site";
 
@@ -32,7 +33,7 @@ export async function GET() {
     ...[...ed.stories]
       .sort((a, b) => b.lastUpdate - a.lastUpdate)
       .slice(0, 30)
-      .map((s) => `- [${s.headline}](${SITE.url}/story/${s.id}): ${s.basis}`),
+      .map((s) => `- [${s.headline}](${SITE.url}${storyPath(s)}): ${s.basis}`),
     "",
     "## Machine-readable",
     "",

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { storyPath } from "@/lib/slug";
 import Link from "next/link";
 import { getEdition } from "@/lib/news";
 import { dek, ArtFigure, SectionKicker, StoryMeta, clip } from "@/components/StoryBits";
@@ -25,11 +26,11 @@ export default async function Latest() {
           <div className="when">{new Date(s.lastUpdate).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC" })} UTC</div>
           <div>
             <SectionKicker section={s.section} />
-            <Link href={`/story/${s.id}`}><h2 className="hl-l">{s.headline}</h2></Link>
+            <Link href={storyPath(s)}><h2 className="hl-l">{s.headline}</h2></Link>
             {dek(s) && <p className="summary">{clip(dek(s), 220)}</p>}
             <StoryMeta story={s} now={ed.generatedAt} />
           </div>
-          <Link href={`/story/${s.id}`} tabIndex={-1} aria-hidden="true"><ArtFigure art={s.art} /></Link>
+          <Link href={storyPath(s)} tabIndex={-1} aria-hidden="true"><ArtFigure art={s.art} /></Link>
         </article>
       ))}
     </div>

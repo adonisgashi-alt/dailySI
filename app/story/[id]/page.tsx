@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { idFromSlug, storyPath, storySlug } from "@/lib/slug";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getEdition, getStory, type EditionStory } from "@/lib/news";
 import { findArchived, type ArchivedStory } from "@/lib/archive";
 import { SECTION_BY_SLUG, SECTIONS } from "@/lib/sections";
@@ -8,13 +9,13 @@ import { ago } from "@/lib/format";
 import { SITE } from "@/lib/site";
 import { ArtFigure, SectionKicker, StoryMeta, clip, dek } from "@/components/StoryBits";
 import { JsonLd } from "@/components/JsonLd";
-import { STATIC, allStoryIds } from "@/lib/static";
+import { STATIC, allStorySlugs } from "@/lib/static";
 
 export const revalidate = 600;
 
 // Rendered on first request, then cached and refreshed like the front page.
 export async function generateStaticParams() {
-  return STATIC ? (await allStoryIds()).map((id) => ({ id })) : [];
+  return STATIC ? (await allStorySlugs()).map((id) => ({ id })) : [];
 }
 
 type Props = { params: Promise<{ id: string }> };
@@ -22,7 +23,8 @@ type Props = { params: Promise<{ id: string }> };
 type Shown = Omit<EditionStory, "reports" | "tokens"> & { reports: ArchivedStory["reports"]; archived: boolean };
 
 /** The live story if it is still on the wire, otherwise the archived copy. */
-async function load(id: string): Promise<Shown | null> {
+async function load(param: string): Promise<Shown | null> {
+  const id = idFromSlug(param);
   const live = await getStory(id);
   if (live) return { ...live, archived: false };
   const a = await findArchived(id);
@@ -39,16 +41,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: story.headline,
     description,
-    alternates: { canonical: `/story/${story.id}` },
-    openGraph: { type: "article", title: story.headline, description, url: `/story/${story.id}`, images: [image], publishedTime: new Date(story.firstSeen).toISOString(), modifiedTime: new Date(story.lastUpdate).toISOString(), section: story.section.name },
+    alternates: { canonical: storyPath(story) },
+    openGraph: { type: "article", title: story.headline, description, url: storyPath(story), images: [image], publishedTime: new Date(story.firstSeen).toISOString(), modifiedTime: new Date(story.lastUpdate).toISOString(), section: story.section.name },
     twitter: { card: "summary_large_image", title: story.headline, description, images: [image] },
   };
 }
 
 export default async function StoryPage({ params }: Props) {
-  const id = (await params).id;
-  const story = await load(id);
+  const param = (await params).id;
+  const story = await load(param);
   if (!story) notFound();
+  // Old id-only links and links with an outdated headline go to the current address.
+  if (!STATIC && param !== storySlug(story)) permanentRedirect(storyPath(story));
   const ed = await getEdition();
   const now = ed.generatedAt;
   const more = ed.stories.filter((s) => s.id !== story.id && s.section.slug === story.section.slug).slice(0, 4);
@@ -65,7 +69,7 @@ export default async function StoryPage({ params }: Props) {
           datePublished: new Date(story.firstSeen).toISOString(),
           dateModified: new Date(story.lastUpdate).toISOString(),
           articleSection: story.section.name,
-          mainEntityOfPage: `${SITE.url}/story/${story.id}`,
+          mainEntityOfPage: `${SITE.url}${storyPath(story)}`,
           publisher: { "@type": "NewsMediaOrganization", name: SITE.name, url: SITE.url, logo: { "@type": "ImageObject", url: `${SITE.url}/icon.svg` } },
           isBasedOn: story.reports.map((r) => ({ "@type": "NewsArticle", headline: r.title, url: r.link, publisher: { "@type": "Organization", name: r.outlet } })),
         }}
@@ -130,7 +134,7 @@ export default async function StoryPage({ params }: Props) {
           <ul className="headlines">
             {more.map((s) => (
               <li key={s.id}>
-                <Link href={`/story/${s.id}`}><h3 className="hl-s">{s.headline}</h3></Link>
+                <Link href={storyPath(s)}><h3 className="hl-s">{s.headline}</h3></Link>
                 {s.summary && <p className="summary" style={{ fontSize: 14 }}>{clip(s.summary, 140)}</p>}
                 <StoryMeta story={s} now={now} />
               </li>

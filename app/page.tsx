@@ -71,7 +71,7 @@ export default async function FrontPage() {
           name: SITE.name,
           url: SITE.url,
           description: SITE.description,
-          publisher: { "@type": "NewsMediaOrganization", name: SITE.name, url: SITE.url, logo: `${SITE.url}/icon.svg` },
+          publisher: { "@type": "NewsMediaOrganization", name: SITE.name, url: SITE.url, logo: `${SITE.url}/icon.png` },
         }}
       />
       <h1 className="sr-only">{SITE.name}: today&apos;s confirmed superintelligence news</h1>

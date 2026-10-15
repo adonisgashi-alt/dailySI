@@ -6,6 +6,7 @@ import { parseFeed, type RawItem } from "./parse.ts";
 import type { Story } from "./desk.ts";
 import { dailyReading, type DailyReading } from "./daily.ts";
 import { buildStories, type EditionStory } from "./edition.ts";
+import type { Art } from "./images.ts";
 import { getArchiveDay, getArchiveDays, getRiskHistory, type Editorial } from "./archive.ts";
 import bundledHistory from "../data/risk-history.json";
 
@@ -62,11 +63,19 @@ export const getEdition = cache(async (): Promise<Edition> => {
   const { desk, stories } = await buildStories(items, now);
 
   // Original write-ups from the AI desk live in the archive (last ~8 days covers the wire).
+  // So do pictures the AI picture editor checked.
   const editorials = new Map<string, Editorial>();
+  const pictures = new Map<string, Art>();
   for (const d of (await getArchiveDays()).slice(0, 8))
     for (const s of (await getArchiveDay(d.date))?.stories ?? [])
-      if (s.editorial) for (const id of [s.id, ...(s.aliases ?? [])]) editorials.set(id, s.editorial);
-  for (const s of stories) s.editorial = editorials.get(s.id);
+      for (const id of [s.id, ...(s.aliases ?? [])]) {
+        if (s.editorial) editorials.set(id, s.editorial);
+        if (s.art?.picked) pictures.set(id, s.art);
+      }
+  for (const s of stories) {
+    s.editorial = editorials.get(s.id);
+    s.art = pictures.get(s.id) ?? s.art;
+  }
 
   const feeds = new Map<string, FeedStatus>();
   SOURCES.forEach((s, i) => {

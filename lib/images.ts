@@ -18,6 +18,7 @@ export type Art = {
   licenseUrl?: string;
   sourceUrl?: string;
   fit?: "contain"; // logos and diagrams: show whole, don't crop
+  picked?: boolean; // chosen and checked by the AI picture editor (scripts/picture.ts)
 };
 
 const UA = "DailySuperIntelligence/1.0 (https://daily-si.com; news site) node-fetch";
@@ -116,7 +117,7 @@ type WikiPage = { title: string; pageimage?: string; thumbnail?: { source: strin
 type WikiInfo = { imageinfo?: { descriptionurl?: string; extmetadata?: Record<string, { value: string }> }[] };
 
 /** Free (Commons) lead photo of a Wikipedia article, with credit. Cached for a week. */
-async function wikipediaPhoto(title: string): Promise<Art | null> {
+export async function wikipediaPhoto(title: string): Promise<Art | null> {
   const q = await getJson<{ query?: { pages?: Record<string, WikiPage> } }>(
     "https://en.wikipedia.org/w/api.php?" +
       new URLSearchParams({ action: "query", format: "json", prop: "pageimages", titles: title, piprop: "thumbnail|name", pithumbsize: "960", pilicense: "free", redirects: "1" }),
@@ -149,7 +150,7 @@ async function wikipediaPhoto(title: string): Promise<Art | null> {
   };
 }
 
-type OpenverseResult = {
+export type OpenverseResult = {
   id: string;
   title?: string;
   creator?: string;
@@ -162,7 +163,7 @@ type OpenverseResult = {
   mature?: boolean;
 };
 
-async function openverse(query: string): Promise<OpenverseResult[]> {
+export async function openverse(query: string): Promise<OpenverseResult[]> {
   const json = await getJson<{ results?: OpenverseResult[] }>(
     "https://api.openverse.org/v1/images/?" +
       new URLSearchParams({ q: query, license_type: "commercial", page_size: "20", aspect_ratio: "wide", mature: "false" }),
@@ -180,7 +181,7 @@ export function generatedArt(story: Pick<Story, "id" | "headline">): Art {
   };
 }
 
-function openverseArt(r: OpenverseResult, query: string): Art {
+export function openverseArt(r: OpenverseResult, query: string): Art {
   const lic =
     r.license === "pdm" ? "Public domain" : r.license === "cc0" ? "CC0" : `CC ${r.license.toUpperCase()}${r.license_version ? ` ${r.license_version}` : ""}`;
   return {

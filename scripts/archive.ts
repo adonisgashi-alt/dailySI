@@ -12,6 +12,8 @@ import { shardOf, type ArchiveDay, type DayEntry } from "../lib/archive.ts";
 import { utcDate } from "../lib/risk.ts";
 import Anthropic from "@anthropic-ai/sdk";
 import { writeEditorial } from "./editor.ts";
+import { pickPicture } from "./picture.ts";
+import { generatedArt } from "../lib/images.ts";
 
 // How many stories the AI desk writes per run, and how many top stories go to the bigger model.
 const EDITOR_PER_RUN = Number(process.env.EDITOR_PER_RUN ?? 25);
@@ -72,6 +74,25 @@ if (process.env.ANTHROPIC_API_KEY) {
       }
     } catch (e) {
       console.error(`AI desk error (${(e as Error).message}); stopping for this run.`);
+      break;
+    }
+  }
+
+  // AI picture editor: one check per story, best stories first.
+  let pictured = 0;
+  for (const s of stories) {
+    if (pictured >= EDITOR_PER_RUN) break;
+    const { date, story } = find(s.id);
+    if (!story || story.art?.picked) continue;
+    try {
+      const { art, note } = await pickPicture(client, story);
+      // No image truly fits: lock in the generated illustration rather than a loose match.
+      story.art = art ?? { ...generatedArt(story), picked: true };
+      changed.add(date);
+      pictured++;
+      console.log(`Picture desk: ${art ? "photo" : "illustration"} (${note}) | ${story.headline.slice(0, 60)}`);
+    } catch (e) {
+      console.error(`Picture desk error (${(e as Error).message}); stopping for this run.`);
       break;
     }
   }

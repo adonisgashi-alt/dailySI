@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!story) return { title: "Story not found", robots: { index: false } };
   const description = dek(story) || story.basis;
   // Generated illustrations are embedded in the page in static mode, so they have no URL to share.
-  const image = story.art.src.startsWith("/") ? (STATIC ? `${SITE.url}/icon.svg` : `${SITE.url}${story.art.src}`) : story.art.src;
+  const image = story.art.src.startsWith("/") ? (STATIC ? `${SITE.url}/icon.png` : `${SITE.url}${story.art.src}`) : story.art.src;
   return {
     title: story.headline,
     description,
@@ -65,12 +65,12 @@ export default async function StoryPage({ params }: Props) {
           "@type": "NewsArticle",
           headline: story.headline,
           description: dek(story) || story.basis,
-          image: [story.art.src.startsWith("/") ? (STATIC ? `${SITE.url}/icon.svg` : `${SITE.url}${story.art.src}`) : story.art.src],
+          image: [story.art.src.startsWith("/") ? (STATIC ? `${SITE.url}/icon.png` : `${SITE.url}${story.art.src}`) : story.art.src],
           datePublished: new Date(story.firstSeen).toISOString(),
           dateModified: new Date(story.lastUpdate).toISOString(),
           articleSection: story.section.name,
           mainEntityOfPage: `${SITE.url}${storyPath(story)}`,
-          publisher: { "@type": "NewsMediaOrganization", name: SITE.name, url: SITE.url, logo: { "@type": "ImageObject", url: `${SITE.url}/icon.svg` } },
+          publisher: { "@type": "NewsMediaOrganization", name: SITE.name, url: SITE.url, logo: { "@type": "ImageObject", url: `${SITE.url}/icon.png` } },
           isBasedOn: story.reports.map((r) => ({ "@type": "NewsArticle", headline: r.title, url: r.link, publisher: { "@type": "Organization", name: r.outlet } })),
         }}
       />

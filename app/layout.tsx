@@ -16,7 +16,6 @@ export const metadata: Metadata = {
   openGraph: { type: "website", siteName: SITE.name, title: SITE.name, description: SITE.description, url: "/", locale: "en_US" },
   twitter: { card: "summary_large_image", title: SITE.name, description: SITE.description },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
-  icons: { icon: "/icon.svg" },
   other: { "google-adsense-account": SITE.adsenseClient },
 };
 

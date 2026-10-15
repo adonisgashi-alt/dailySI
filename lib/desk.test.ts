@@ -171,3 +171,28 @@ test("daily reading ignores news published after midnight", async () => {
   assert.equal(a.replacement.index, b.replacement.index);
   assert.ok(now > midnight);
 });
+
+test("the same event from separately-formed groups is merged into one story", () => {
+  const ed = editDesk(
+    [
+      item("OpenAI sued by 8 states over ChatGPT safety concerns", "Law Commentary", 3),
+      item("Arkansans react as attorney general sues OpenAI over ChatGPT safety concerns", "KARK", 2.5),
+      item("Multiple states sue OpenAI, accusing it of harming children and deceiving parents", "SiliconANGLE", 2),
+      item("Eight US states sue OpenAI, claiming ChatGPT harms young users", "NBC News", 1),
+      item("Eight states file lawsuits against OpenAI alleging ChatGPT harms kids", "China Daily", 0.6),
+      // A different OpenAI story must stay separate.
+      item("OpenAI unveils GPT-7 with week-long autonomous reasoning", "The Verge", 2),
+      item("OpenAI's GPT-7 can reason autonomously for a week", "TechCrunch", 1),
+    ],
+    now,
+  );
+  assert.equal(ed.confirmed.length, 2, ed.confirmed.map((s) => s.headline).join(" || "));
+  const suit = ed.confirmed.find((s) => /states/i.test(s.headline))!;
+  assert.equal(suit.outlets.length, 5);
+});
+
+test("lawsuits against a lab are filed under policy, launches under labs", async () => {
+  const { sectionFor } = await import("./sections.ts");
+  assert.equal(sectionFor("Eight US states sue OpenAI, claiming ChatGPT harms young users").slug, "policy");
+  assert.equal(sectionFor("OpenAI unveils GPT-7, claiming week-long autonomous reasoning").slug, "labs");
+});

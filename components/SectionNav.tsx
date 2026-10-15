@@ -7,7 +7,7 @@ import { SECTIONS } from "@/lib/sections";
 export const NAV = [
   { href: "/", name: "Front Page" },
   { href: "/latest", name: "Latest" },
-  ...SECTIONS.map((s) => ({ href: `/section/${s.slug}`, name: s.name })),
+  ...SECTIONS.map((s) => ({ href: `/section/${s.slug}`, name: s.nav })),
   { href: "/risk", name: "Risk Meters" },
 ];
 

@@ -51,7 +51,12 @@ const STOP = new Set(
 
 // Deliberately crude stemmer: enough to match "reasoning"/"reason",
 // "unveils"/"unveiled", "autonomously"/"autonomous".
+const NUMBERS: Record<string, string> = { one: "1", two: "2", three: "3", four: "4", five: "5", six: "6", seven: "7", eight: "8", nine: "9", ten: "10", eleven: "11", twelve: "12", dozen: "12", hundred: "100", thousand: "1000", million: "1000000", billion: "1000000000" };
+const IRREGULAR: Record<string, string> = { sued: "sue", sues: "sue", suing: "sue", lawsuit: "sue", lawsuits: "sue", says: "say", said: "say", led: "lead", leads: "lead", bought: "buy", buys: "buy", sold: "sell", sells: "sell", hit: "hit", hits: "hit", cut: "cut", cuts: "cut", children: "child", kids: "child", kid: "child", teens: "child", teen: "child", minors: "child", young: "child" };
+
 function stem(t: string): string {
+  if (NUMBERS[t]) return NUMBERS[t];
+  if (IRREGULAR[t]) return IRREGULAR[t];
   if (/\d/.test(t) || t.length <= 3) return t;
   t = t.replace(/ly$/, "");
   if (t.length > 5) t = t.replace(/(ing|ed)$/, "");
@@ -67,7 +72,7 @@ export function tokens(title: string): string[] {
     .split(/\s+/)
     .map((t) => t.replace(/^[.\-]+|[.\-]+$/g, ""))
     .map(stem)
-    .filter((t) => t.length > 1 && !STOP.has(t));
+    .filter((t) => (t.length > 1 || /\d/.test(t)) && !STOP.has(t));
 }
 
 export type Report = RawItem & { tokens: string[]; relevance: number };
@@ -143,6 +148,40 @@ export function cluster(reports: Report[]): Report[][] {
     } else {
       clusters.push({ members: [r], sets: [a] });
     }
+  }
+
+  // Second pass: merge groups that cover the same event but formed separately
+  // (e.g. "OpenAI sued by 8 states over ChatGPT safety" and "Eight US states
+  // sue OpenAI, claiming ChatGPT harms young users").
+  const pairScore = (a: Set<string>, b: Set<string>) => {
+    const shared = [...a].filter((t) => b.has(t));
+    if (shared.length < 2) return 0;
+    const raw = shared.reduce((s, t) => s + idf(t), 0) / Math.min(weight(a), weight(b));
+    return shared.length >= 3 ? raw * 1.3 : raw;
+  };
+  const near = (x: (typeof clusters)[number], y: (typeof clusters)[number]) => {
+    let best = 0;
+    x.members.forEach((m, i) =>
+      y.members.forEach((o, j) => {
+        if (Math.abs(m.publishedAt - o.publishedAt) <= WINDOW_MS) best = Math.max(best, pairScore(x.sets[i], y.sets[j]));
+      }),
+    );
+    if (best < 0.4) return false;
+    const ux = new Set(x.sets.flatMap((st) => [...st]));
+    const shared = [...new Set(y.sets.flatMap((st) => [...st]))].filter((t) => ux.has(t));
+    return shared.length >= 3;
+  };
+  for (let merged = true; merged; ) {
+    merged = false;
+    outer: for (let i = 0; i < clusters.length; i++)
+      for (let j = i + 1; j < clusters.length; j++)
+        if (near(clusters[i], clusters[j])) {
+          clusters[i].members.push(...clusters[j].members);
+          clusters[i].sets.push(...clusters[j].sets);
+          clusters.splice(j, 1);
+          merged = true;
+          break outer;
+        }
   }
   return clusters.map((c) => c.members);
 }

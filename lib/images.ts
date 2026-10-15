@@ -75,7 +75,7 @@ const THEMES: { re: RegExp; query: string; key: string }[] = [
   { re: /\b(funding|valuation|investors?|IPO|stock|shares|billion|earnings)\b/i, query: "stock exchange", key: "money" },
   { re: /\b(China|Beijing|Shanghai|Shenzhen)\b/, query: "Shanghai skyline", key: "china" },
   { re: /\b(San Francisco|Silicon Valley)\b/i, query: "San Francisco skyline", key: "sf" },
-  { re: /\b(chatbots?|ChatGPT|Claude|Gemini|assistant)\b/i, query: "smartphone screen", key: "phone" },
+  { re: /\b(chatbots?|ChatGPT|Claude|Gemini|assistant)\b/i, query: "person using laptop", key: "laptop" },
   { re: /\b(code|coding|programmers?|developers?|software)\b/i, query: "programmer computer code", key: "code" },
   { re: /\b(brain|neuro\w*|mind)\b/i, query: "brain neurons", key: "brain" },
   { re: /\b(safety|alignment|existential|extinction|risk)\b/i, query: "warning sign", key: "safety" },

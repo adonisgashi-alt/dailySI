@@ -85,8 +85,10 @@ export function Meter({
       <Gauge index={reading.index} label={`${def.name}: ${reading.index} out of 100, ${reading.level}`} />
       <div className="readout">
         <strong>{reading.index}</strong>
-        <span style={{ color: bandColor(reading.index) }}>{reading.level}</span>
-        <Change change={weeklyChange(days, reading.meter)} />
+        <div className="sub">
+          <span className="lvl" style={{ color: bandColor(reading.index) }}>{reading.level}</span>
+          <Change change={weeklyChange(days, reading.meter)} />
+        </div>
       </div>
       {history.length > 1 && <Sparkline values={history} />}
       {drivers && reading.drivers.length > 0 && (

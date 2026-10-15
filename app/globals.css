@@ -162,9 +162,10 @@ figcaption a { text-decoration: underline; text-underline-offset: 2px; }
 .needle { transform-origin: 120px 120px; transform: rotate(var(--angle)); animation: needle 1.4s cubic-bezier(.2,.9,.25,1) both; }
 @keyframes needle { from { transform: rotate(-90deg); } to { transform: rotate(var(--angle)); } }
 @media (prefers-reduced-motion: reduce) { .needle { animation: none; } }
-.readout { display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-top: -4px; }
-.readout strong { font-family: var(--mono); font-size: 34px; font-weight: 600; letter-spacing: -0.02em; }
-.readout span { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.readout { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: -4px; text-align: center; }
+.readout strong { font-family: var(--mono); font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+.readout .sub { display: flex; justify-content: center; align-items: baseline; gap: 10px; }
+.readout .lvl { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .readout .chg { font-family: var(--mono); font-size: 12.5px; font-weight: 600; letter-spacing: 0; text-transform: none; }
 .readout .chg .since { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink-3); }
 .chg-mini { font-family: var(--mono); font-size: 10.5px; font-weight: 600; margin-left: 3px; }

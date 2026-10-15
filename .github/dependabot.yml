@@ -1,4 +1,7 @@
 version: 2
+# Hands-off updates: only minor and patch versions, which CI tests and merges
+# automatically. Major upgrades are skipped (they can need code changes);
+# security fixes still arrive through Dependabot security updates.
 updates:
   - package-ecosystem: npm
     directory: /
@@ -10,8 +13,14 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     target-branch: main
     schedule:
       interval: monthly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

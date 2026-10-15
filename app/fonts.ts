@@ -3,11 +3,14 @@ import localFont from "next/font/local";
 // Self-hosted and preloaded with the page, with metric-matched fallbacks, so text
 // never flashes or reflows while fonts load.
 
-export const blackletter = localFont({
-  src: "./fonts/unifrakturmaguntia-latin-400-normal.woff2",
-  variable: "--font-black",
-  display: "block",
+// Masthead: Playfair Display Black.
+export const masthead = localFont({
+  src: "./fonts/playfair-display-latin-900-normal.woff2",
+  weight: "900",
+  variable: "--font-masthead",
+  display: "swap",
   fallback: ["Georgia", "serif"],
+  adjustFontFallback: "Times New Roman",
 });
 
 export const serif = localFont({
@@ -45,4 +48,4 @@ export const mono = localFont({
   adjustFontFallback: false,
 });
 
-export const fontVariables = [blackletter, serif, sans, mono].map((f) => f.variable).join(" ");
+export const fontVariables = [masthead, serif, sans, mono].map((f) => f.variable).join(" ");

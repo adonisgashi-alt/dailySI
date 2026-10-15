@@ -41,7 +41,6 @@ export function Footer() {
         </div>
         <div className="fine">
           <span>© {new Date().getFullYear()} {SITE.name}. Headlines link to and credit their original publishers.</span>
-          <span>Updated automatically every 10 minutes.</span>
         </div>
       </div>
     </footer>

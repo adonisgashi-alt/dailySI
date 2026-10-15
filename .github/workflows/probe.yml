@@ -1,0 +1,26 @@
+name: Probe data sources
+
+# Manual check of which public data sources the meters' indicators can reach.
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "Space-separated URLs (blank = defaults in scripts/probe.ts)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --experimental-strip-types scripts/probe.ts
+        env:
+          PROBE_URLS: ${{ inputs.urls }}

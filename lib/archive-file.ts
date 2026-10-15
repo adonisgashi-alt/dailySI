@@ -20,7 +20,7 @@ function merge(old: ArchivedStory, s: ArchivedStory): ArchivedStory {
   return {
     ...old,
     aliases: aliases.size ? [...aliases] : undefined,
-    // The newest edit wins for text and verification; the picture stays put.
+    // The newest edit wins for text, verification and picture.
     headline: s.headline || old.headline,
     summary: s.summary || old.summary,
     section: s.section,
@@ -30,6 +30,7 @@ function merge(old: ArchivedStory, s: ArchivedStory): ArchivedStory {
     outlets: [...new Set([...old.outlets, ...s.outlets])],
     firstSeen: Math.min(old.firstSeen, s.firstSeen),
     lastUpdate: Math.max(old.lastUpdate, s.lastUpdate),
+    art: s.art ?? old.art,
     reports: [...byLink.values()].sort((a, b) => b.publishedAt - a.publishedAt).slice(0, MAX_REPORTS),
   };
 }

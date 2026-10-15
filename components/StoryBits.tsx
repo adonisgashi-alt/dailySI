@@ -12,7 +12,7 @@ const artSrc = (src: string) => (STATIC && src.startsWith("/api/thumb/") ? thumb
 export function ArtFigure({ art, caption = false, priority = false }: { art: Art; caption?: boolean; priority?: boolean }) {
   return (
     <figure>
-      <div className="art">
+      <div className={art.fit === "contain" ? "art art-contain" : "art"}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={artSrc(art.src)} alt={art.alt} loading={priority ? "eager" : "lazy"} decoding="async" referrerPolicy="no-referrer" />
       </div>

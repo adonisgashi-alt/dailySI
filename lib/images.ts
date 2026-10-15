@@ -17,6 +17,7 @@ export type Art = {
   license?: string;
   licenseUrl?: string;
   sourceUrl?: string;
+  fit?: "contain"; // logos and diagrams: show whole, don't crop
 };
 
 const UA = "DailySuperIntelligence/1.0 (https://daily-si.com; news site) node-fetch";
@@ -46,7 +47,7 @@ const SUBJECTS: [RegExp, string][] = [
   [/\bStarmer\b/, "Keir Starmer"],
   [/\bMacron\b/, "Emmanuel Macron"],
   [/\bLisa Su\b/, "Lisa Su"],
-  [/\bMasayoshi Son\b|\bSoftBank\b/, "Masayoshi Son"],
+  [/\bMasayoshi Son\b/, "Masayoshi Son"],
   [/\bTSMC\b/, "TSMC"],
   [/\bWaymo\b/, "Waymo"],
   [/\bPentagon\b/, "The Pentagon"],
@@ -54,32 +55,51 @@ const SUBJECTS: [RegExp, string][] = [
   [/\bCapitol\b|\bCongress\b|\bSenate\b/, "United States Capitol"],
   [/\bEuropean Parliament\b|\bEU\b|\bBrussels\b/, "European Parliament"],
   [/\bDowning Street\b|\bUK government\b/, "10 Downing Street"],
+  // Companies and labs: their Wikipedia lead image, usually a logo or headquarters.
+  [/\bOpenAI\b/, "OpenAI"],
+  [/\bAnthropic\b/, "Anthropic"],
+  [/\b(Google )?DeepMind\b/, "Google DeepMind"],
+  [/\bMeta\b/, "Meta Platforms"],
+  [/\bMicrosoft\b/, "Microsoft"],
+  [/\bNvidia\b/i, "Nvidia"],
+  [/\bxAI\b/, "xAI (company)"],
+  [/\bMistral\b/, "Mistral AI"],
+  [/\bHugging Face\b/, "Hugging Face"],
+  [/\bSoftBank\b/, "SoftBank Group"],
+  [/\bApple\b/, "Apple Inc."],
+  [/\bAmazon\b/, "Amazon (company)"],
+  [/\bTesla\b/, "Tesla, Inc."],
+  [/\bGoogle\b/, "Google"],
+  [/\bDeepSeek\b/, "DeepSeek"],
 ];
 
-// Illustrative photo themes for Openverse. First match wins.
+// Illustrative photo themes for Openverse, matched against the headline only.
+// Only concrete, unambiguous subjects: a loose match (e.g. "AI lab" -> a chemistry
+// lab) misleads readers, so anything else gets a generated illustration instead.
 const THEMES: { re: RegExp; query: string; key: string }[] = [
-  { re: /\b(humanoids?|robots?|robotics|optimus|figure ai)\b/i, query: "humanoid robot", key: "robot" },
+  { re: /\b(humanoids?|robots?|robotics|optimus)\b/i, query: "humanoid robot", key: "robot" },
   { re: /\b(self-driving|autonomous vehicles?|robotaxi\w*)\b/i, query: "self-driving car", key: "car" },
   { re: /\bdrones?\b/i, query: "drone flying", key: "drone" },
-  { re: /\b(data ?cent(er|re)s?|stargate|supercomputers?|servers?)\b/i, query: "data center servers", key: "datacenter" },
-  { re: /\b(gigawatts?|power plants?|nuclear|energy|electricity|grid)\b/i, query: "power plant electricity", key: "energy" },
-  { re: /\b(chips?|GPUs?|semiconductors?|nvidia|TSMC|wafers?|export controls?)\b/i, query: "semiconductor chip", key: "chip" },
-  { re: /\b(military|pentagon|defen[cs]e|weapons?|warfare)\b/i, query: "military technology", key: "military" },
-  { re: /\b(congress|senate|parliament|regulat\w*|AI act|legislat\w*|lawmakers|government)\b/i, query: "parliament building", key: "policy" },
-  { re: /\b(court|lawsuit|sues?|judge|copyright)\b/i, query: "courthouse", key: "court" },
-  { re: /\b(layoffs?|jobs?|workers?|employment|workforce|labou?r|hiring|office)\b/i, query: "office workers", key: "work" },
-  { re: /\b(students?|schools?|education|universit\w*|teachers?)\b/i, query: "students classroom", key: "school" },
-  { re: /\b(hospital|medical|doctors?|health\w*|patients?)\b/i, query: "hospital doctor", key: "health" },
-  { re: /\b(drug discovery|biolog\w*|proteins?|lab|laborator\w*|scientists?)\b/i, query: "laboratory research", key: "lab" },
-  { re: /\b(math\w*|proofs?|equations?)\b/i, query: "mathematics blackboard", key: "math" },
-  { re: /\b(funding|valuation|investors?|IPO|stock|shares|billion|earnings)\b/i, query: "stock exchange", key: "money" },
-  { re: /\b(China|Beijing|Shanghai|Shenzhen)\b/, query: "Shanghai skyline", key: "china" },
-  { re: /\b(San Francisco|Silicon Valley)\b/i, query: "San Francisco skyline", key: "sf" },
-  { re: /\b(chatbots?|ChatGPT|Claude|Gemini|assistant)\b/i, query: "person using laptop", key: "laptop" },
-  { re: /\b(code|coding|programmers?|developers?|software)\b/i, query: "programmer computer code", key: "code" },
-  { re: /\b(brain|neuro\w*|mind)\b/i, query: "brain neurons", key: "brain" },
-  { re: /\b(safety|alignment|existential|extinction|risk)\b/i, query: "warning sign", key: "safety" },
+  { re: /\b(data ?cent(er|re)s?|supercomputers?|server farms?)\b/i, query: "data center servers", key: "datacenter" },
+  { re: /\b(gigawatts?|power plants?|nuclear (plant|reactor|power)|electricity|power grid)\b/i, query: "power plant electricity", key: "energy" },
+  { re: /\b(chips?|GPUs?|semiconductors?|wafers?|chipmakers?)\b/i, query: "semiconductor chip", key: "chip" },
+  { re: /\b(military|pentagon|warfare|soldiers?)\b/i, query: "military technology", key: "military" },
+  { re: /\b(congress|senate|parliament|lawmakers|legislat\w*)\b/i, query: "parliament building", key: "policy" },
+  { re: /\b(court|lawsuits?|sues?|sued|suing|judge|trial)\b/i, query: "courthouse", key: "court" },
+  { re: /\b(layoffs?|jobs|workers|employment|workforce|hiring)\b/i, query: "office workers", key: "work" },
+  { re: /\b(students?|schools?|classrooms?|teachers?)\b/i, query: "students classroom", key: "school" },
+  { re: /\b(hospitals?|doctors?|patients?|clinical)\b/i, query: "hospital doctor", key: "health" },
+  { re: /\b(drug discovery|biology|proteins?|vaccines?|genom\w*)\b/i, query: "biology laboratory", key: "bio" },
+  { re: /\b(stock market|IPO|shares (fell|rose|jump\w*|drop\w*)|Wall Street)\b/i, query: "stock exchange", key: "money" },
 ];
+
+/** The photo subject or stock theme a headline would get (null: generated illustration). */
+export function pictureFor(headline: string): { subject?: string; theme?: string } | null {
+  const subject = SUBJECTS.find(([re]) => re.test(headline))?.[1];
+  if (subject) return { subject };
+  const theme = THEMES.find((t) => t.re.test(headline))?.query;
+  return theme ? { theme } : null;
+}
 
 async function getJson<T>(url: string, revalidate: number): Promise<T | null> {
   try {
@@ -103,7 +123,8 @@ async function wikipediaPhoto(title: string): Promise<Art | null> {
     604800,
   );
   const page = Object.values(q?.query?.pages ?? {})[0];
-  if (!page?.thumbnail || !page.pageimage || page.thumbnail.width < 400) return null;
+  // Logos come as SVG renders and can be small; photos need some resolution.
+  if (!page?.thumbnail || !page.pageimage || (page.thumbnail.width < 400 && !/\.svg$/i.test(page.pageimage))) return null;
 
   const meta = await getJson<{ query?: { pages?: Record<string, WikiInfo> } }>(
     "https://en.wikipedia.org/w/api.php?" +
@@ -115,9 +136,11 @@ async function wikipediaPhoto(title: string): Promise<Art | null> {
   const license = strip(ext.LicenseShortName?.value);
   if (!license || /fair use|non-free/i.test(license)) return null;
   const artist = strip(ext.Artist?.value).slice(0, 80);
+  const isLogo = /\.svg$|logo|wordmark|symbol/i.test(page.pageimage);
   return {
     src: page.thumbnail.source,
-    alt: `${page.title} (Wikimedia Commons photo)`,
+    alt: isLogo ? `${page.title} logo` : `${page.title} (Wikimedia Commons photo)`,
+    fit: isLogo ? "contain" : undefined,
     kind: "photo",
     credit: artist ? `Photo: ${artist} / Wikimedia Commons` : "Photo: Wikimedia Commons",
     license,
@@ -193,7 +216,7 @@ export async function artFor(stories: Story[]): Promise<Map<string, Art>> {
   const byTheme = new Map<string, Story[]>();
   for (const s of stories) {
     if (art.has(s.id)) continue;
-    const theme = THEMES.find((t) => t.re.test(`${s.headline} ${s.summary}`));
+    const theme = THEMES.find((t) => t.re.test(s.headline));
     if (theme) byTheme.set(theme.key, [...(byTheme.get(theme.key) ?? []), s]);
   }
   await Promise.all(

@@ -6,12 +6,13 @@
 //     customer service and administrative assistance, relative to all postings,
 //     each indexed to Feb 2020 = 100. Exposed work falling behind the market
 //     pushes the meter up.
-//   - Pace of frontier AI releases (Epoch AI): frontier models per day recently
-//     vs the year before. Faster pushes up.
+//   - Pace of AI model releases (Epoch AI): notable models from companies per
+//     day recently vs the year before. Faster pushes up.
 // AI extinction risk (resting point 30):
-//   - Pace of frontier AI releases, as above.
+//   - Pace of AI model releases, as above.
 //   - Reported AI incidents (AI Incident Database): the last 30 days vs the
-//     60 days before. More incidents push up.
+//     60 days before, from a log we keep (the feed itself only covers recent
+//     weeks). More incidents push up.
 
 import type { Anchor } from "./risk.ts";
 
@@ -69,37 +70,40 @@ export function parseCsv(text: string): string[][] {
 }
 
 /**
- * Frontier model releases per day in a recent window vs the year before it.
- * Epoch adds models with a lag, so the recent window ends 30 days ago.
+ * Notable AI model releases by companies per day, in a recent window vs the year
+ * before it. Epoch adds models with some lag, so the recent window ends 14 days ago.
+ * (Epoch's own "frontier model" flag is filled in months later, so it is not used.)
  */
 export function frontierPace(csv: string, now: number): { ratio: number; recent: number; before: number; asOf: string } | null {
   const [head, ...rows] = parseCsv(csv);
   const date = head.indexOf("Publication date");
-  const frontier = head.indexOf("Frontier model");
-  if (date < 0 || frontier < 0) return null;
-  const times = rows.filter((r) => /^(true|yes|1)$/i.test((r[frontier] ?? "").trim())).map((r) => Date.parse(r[date])).filter(Number.isFinite);
-  if (times.length < 10) return null;
-  const end = now - 30 * DAY;
+  const org = head.indexOf("Organization categorization");
+  if (date < 0) return null;
+  const times = rows
+    .filter((r) => org < 0 || /industry/i.test(r[org] ?? ""))
+    .map((r) => Date.parse(r[date]))
+    .filter(Number.isFinite);
+  const end = now - 14 * DAY;
   const mid = end - 180 * DAY;
   const start = mid - 365 * DAY;
   const recent = times.filter((t) => t > mid && t <= end).length;
   const before = times.filter((t) => t > start && t <= mid).length;
-  if (before < 3) return null;
+  if (before < 20) return null;
   return { ratio: recent / 180 / (before / 365), recent, before, asOf: new Date(end).toISOString().slice(0, 10) };
 }
 
 export function pacePart(p: { ratio: number; recent: number; before: number; asOf: string }, rest: number): Part {
   return {
-    label: "Pace of frontier AI releases",
+    label: "Pace of AI model releases",
     value: Math.round(p.ratio * 100) / 100,
     // Same pace as the year before reads the meter's resting point; doubling adds 20.
     index: Math.round(clamp(rest + 20 * Math.log2(Math.max(p.ratio, 0.05)), 2, 98)),
-    source: `Epoch AI notable models; ${p.recent} frontier models in 180 days vs ${p.before} in the year before`,
+    source: `Epoch AI notable models from companies; ${p.recent} in the last 180 days vs ${p.before} in the year before`,
     asOf: p.asOf,
   };
 }
 
-/** Reported AI incidents in the last 30 days vs the 60 days before (from the feed's dates). */
+/** Reported AI incidents in the last 30 days vs the 60 days before (from the incident log's dates). */
 export function incidentsPart(pubDates: number[], now: number, rest: number): Part | null {
   const ts = pubDates.filter((t) => Number.isFinite(t) && t <= now);
   if (!ts.length || Math.min(...ts) > now - 90 * DAY) return null; // the feed doesn't reach back far enough

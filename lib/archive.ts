@@ -76,7 +76,11 @@ export const getArchiveDay = (date: string) =>
 
 export const getRiskHistory = async () => readData<DailyReading[]>("risk-history.json", 900);
 
-export type Indicators = { updatedAt: number; anchors: Partial<Record<MeterId, Anchor>> };
+export type Indicators = {
+  updatedAt: number;
+  anchors: Partial<Record<MeterId, Anchor>>;
+  incidents?: Record<string, number>; // AI Incident Database report id -> published time, last 120 days
+};
 
 export const getIndicators = () => readData<Indicators>("indicators.json", 3600);
 

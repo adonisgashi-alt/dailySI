@@ -42,19 +42,26 @@ const postings = all && exposed.every(Boolean) ? postingsPart(all, exposed as { 
 const epoch = await get("https://epoch.ai/data/notable_ai_models.csv");
 const pace = epoch ? frontierPace(epoch, now) : null;
 const paceFor = (meter: "replacement" | "extinction"): Part | null =>
-  pace ? pacePart(pace, METERS[meter].baseline) : previous(meter, "Pace of frontier AI releases");
+  pace ? pacePart(pace, METERS[meter].baseline) : previous(meter, "Pace of AI model releases");
 
-// AI incidents.
+// AI incidents: keep our own log, since the feed only covers recent weeks.
 const rss = await get("https://incidentdatabase.ai/rss.xml");
-const dates = rss ? [...rss.matchAll(/<pubDate>([^<]+)<\/pubDate>/g)].map((m) => Date.parse(m[1])) : [];
-const incidents = (rss ? incidentsPart(dates, now, METERS.extinction.baseline) : null) ?? previous("extinction", "Reported AI incidents");
-if (rss && !incidentsPart(dates, now, METERS.extinction.baseline)) console.log(`Incident feed has ${dates.length} items; not enough history for a rate.`);
+const log: Record<string, number> = { ...(old?.incidents ?? {}) };
+for (const m of rss?.matchAll(/<item>[\s\S]*?<\/item>/g) ?? []) {
+  const id = m[0].match(/<guid[^>]*>([^<]+)<\/guid>/)?.[1] ?? m[0].match(/<link>([^<]+)<\/link>/)?.[1];
+  const t = Date.parse(m[0].match(/<pubDate>([^<]+)<\/pubDate>/)?.[1] ?? "");
+  if (id && Number.isFinite(t)) log[id] = t;
+}
+for (const [id, t] of Object.entries(log)) if (t < now - 120 * 8.64e7) delete log[id];
+const incidents = incidentsPart(Object.values(log), now, METERS.extinction.baseline);
+if (!incidents) console.log(`Incident log has ${Object.keys(log).length} reports; a rate needs 90 days of history.`);
 
 const replacement = anchorFrom([postings, paceFor("replacement")]);
 const extinction = anchorFrom([paceFor("extinction"), incidents]);
-const out: Indicators = { updatedAt: now, anchors: { ...(replacement && { replacement }), ...(extinction && { extinction }) } };
+const out: Indicators = { updatedAt: now, anchors: { ...(replacement && { replacement }), ...(extinction && { extinction }) }, incidents: log };
 await writeFile(FILE, JSON.stringify(out, null, 1) + "\n");
 for (const [m, a] of Object.entries(out.anchors)) {
-  console.log(`${m}: anchor ${a!.index}`);
-  for (const p of a!.parts) console.log(`  ${p.index}  ${p.label}: ${p.value} (${p.asOf}) — ${p.source}`);
+  if (!a) continue;
+  console.log(`${m}: anchor ${a.index}`);
+  for (const p of a.parts) console.log(`  ${p.index}  ${p.label}: ${p.value} (${p.asOf}) — ${p.source}`);
 }

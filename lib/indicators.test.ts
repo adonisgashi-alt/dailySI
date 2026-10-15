@@ -20,11 +20,12 @@ test("CSV parser handles quotes and embedded newlines", () => {
   assert.deepEqual(parseCsv('a,b\n"x, y","line1\nline2"\n'), [["a", "b"], ["x, y", "line1\nline2"]]);
 });
 
-test("frontier pace compares release rates", () => {
-  const rows = ["Model,Publication date,Frontier model"];
-  const end = now - 30 * DAY;
-  for (let i = 0; i < 20; i++) rows.push(`m${i},${new Date(end - (i + 0.5) * 9 * DAY).toISOString().slice(0, 10)},True`); // 20 in 180 days
-  for (let i = 0; i < 20; i++) rows.push(`o${i},${new Date(end - 180 * DAY - (i + 0.5) * 18 * DAY).toISOString().slice(0, 10)},True`); // 20 in 365 days
+test("release pace compares company release rates", () => {
+  const rows = ["Model,Publication date,Organization categorization"];
+  const end = now - 14 * DAY;
+  for (let i = 0; i < 20; i++) rows.push(`m${i},${new Date(end - (i + 0.5) * 9 * DAY).toISOString().slice(0, 10)},Industry`); // 20 in 180 days
+  for (let i = 0; i < 20; i++) rows.push(`o${i},${new Date(end - 180 * DAY - (i + 0.5) * 18 * DAY).toISOString().slice(0, 10)},Industry`); // 20 in 365 days
+  rows.push(`u0,${new Date(end - DAY).toISOString().slice(0, 10)},Academia`);
   const p = frontierPace(rows.join("\n"), now)!;
   assert.equal(p.recent, 20);
   assert.equal(p.before, 20);

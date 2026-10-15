@@ -27,7 +27,9 @@ for (const url of URLS.length ? URLS : DEFAULT) {
     });
     const text = await res.text();
     console.log(`\n== ${res.status} ${res.headers.get("content-type")} ${text.length}B ${url}`);
-    console.log(text.slice(0, 1500).replace(/\s+\n/g, "\n"));
+    const grep = process.env.PROBE_GREP;
+    if (grep) for (const m of text.matchAll(new RegExp(`.{0,200}(?:${grep}).{0,200}`, "g"))) console.log("  > " + m[0]);
+    else console.log(text.slice(0, 1500).replace(/\s+\n/g, "\n"));
     if (/\.csv|fredgraph/.test(url)) console.log("...\n" + text.trim().split("\n").slice(-4).join("\n"));
   } catch (e) {
     console.log(`\n== ERR ${(e as Error).message} ${url}`);

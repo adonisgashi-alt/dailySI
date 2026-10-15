@@ -8,6 +8,10 @@ on:
         description: "Space-separated URLs (blank = defaults in scripts/probe.ts)"
         required: false
         default: ""
+      grep:
+        description: "Only print text around this regex"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -24,3 +28,4 @@ jobs:
       - run: node --experimental-strip-types scripts/probe.ts
         env:
           PROBE_URLS: ${{ inputs.urls }}
+          PROBE_GREP: ${{ inputs.grep }}

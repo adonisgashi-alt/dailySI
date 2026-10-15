@@ -1,3 +1,4 @@
+export {};
 // Checks which public data sources the indicators job can reach (manual run:
 // .github/workflows/probe.yml). Prints status and the start of each response.
 

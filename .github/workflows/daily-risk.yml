@@ -6,6 +6,11 @@ on:
   schedule:
     - cron: "7 0 * * *" # 00:07 UTC, just after the daily cut
   workflow_dispatch:
+    inputs:
+      indicators_only:
+        description: "Only refresh data/indicators.json (keep today's reading)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -27,14 +32,18 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Refresh public data indicators
+        run: node --experimental-strip-types scripts/indicators.ts
+        continue-on-error: true
       - run: node --experimental-strip-types scripts/daily-risk.ts
+        if: ${{ !inputs.indicators_only }}
       - name: Commit reading
         run: |
-          if git diff --quiet data/risk-history.json; then echo "No change"; exit 0; fi
+          git add data/risk-history.json data/indicators.json 2>/dev/null || git add data/risk-history.json
+          if git diff --cached --quiet; then echo "No change"; exit 0; fi
           git config user.name "daily-si-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/risk-history.json
-          git commit -m "Daily risk reading $(date -u +%F)"
+          git commit -m "Daily risk reading $(date -u +%F)${{ inputs.indicators_only && ' (indicators)' || '' }}"
           for i in 1 2 3; do
             git pull --rebase origin main && git push origin HEAD:main && exit 0
             sleep $((i * 5))

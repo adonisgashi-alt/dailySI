@@ -8,6 +8,9 @@ import { z } from "zod";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import type { ArchivedStory, Editorial } from "../lib/archive.ts";
 
+// Bump when the prompt changes so existing write-ups are rewritten.
+export const EDITOR_VERSION = 2;
+
 export const TOP_MODEL = "claude-sonnet-5-5";
 export const BULK_MODEL = "claude-haiku-5-5";
 
@@ -28,7 +31,8 @@ Rules:
 - Attribute claims to their source ("according to Reuters", "the company said"). Where reports differ, say so.
 - Write in your own words in a neutral, clear newspaper style. Do not copy sentences from the reports.
 - No hype, no speculation, no opinions, no calls to action.
-- If the reports give little detail, write less rather than filling gaps.`;
+- If the reports give little detail, write less rather than filling gaps.
+- Write for readers. Never mention headlines, snippets, "the reports provided", this desk, or what information you do or don't have. Attribute facts to outlets ("The Hill reported..."), not to their headlines.`;
 
 function reportList(s: ArchivedStory): string {
   return s.reports
@@ -63,6 +67,7 @@ export async function writeEditorial(client: Anthropic, story: ArchivedStory, to
       note: o.note.trim(),
       model: response.model,
       writtenAt: Date.now(),
+      version: EDITOR_VERSION,
     },
     usage,
   };

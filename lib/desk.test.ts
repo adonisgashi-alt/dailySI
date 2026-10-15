@@ -225,3 +225,18 @@ test("stories that only share common names (OpenAI, ChatGPT) are not merged", ()
   assert.equal(fbi.reports.length, 2);
   assert.equal(suit.reports.length, 3);
 });
+
+test("the same outlet under slightly different names counts once", async () => {
+  const { norm } = await import("./desk.ts");
+  assert.equal(norm("EnergyNow"), norm("EnergyNow.com"));
+  assert.equal(norm("The Verge"), norm("Verge"));
+  assert.notEqual(norm("NBC News"), norm("CBS News"));
+  const ed = editDesk(
+    [
+      item("Hinton warns superintelligence could arrive within 10 years", "EnergyNow", 3),
+      item("Hinton warns superintelligence could arrive within ten years", "EnergyNow.com", 2),
+    ],
+    now,
+  );
+  assert.equal(ed.confirmed.length, 0); // one outlet twice is not independent confirmation
+});

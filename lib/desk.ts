@@ -194,7 +194,9 @@ export function cluster(reports: Report[]): Report[][] {
 
 // ---------------------------------------------------------------- verification
 
-const norm = (o: string) => o.toLowerCase().replace(/^the\s+/, "").replace(/\s+(news|online|\.com)$/, "").trim();
+// "EnergyNow" and "EnergyNow.com", or "The Verge" and "Verge", are one outlet.
+export const norm = (o: string) =>
+  o.toLowerCase().trim().replace(/^the\s+/, "").replace(/\.(com|org|net|co\.uk|io)$/, "").replace(/\s+(news|online)$/, "").replace(/[^a-z0-9]/g, "");
 
 /**
  * The verification standard. A story is posted only when:

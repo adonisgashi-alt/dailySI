@@ -11,7 +11,7 @@ import { fileStories, dayIndex, type ArchiveState } from "../lib/archive-file.ts
 import { shardOf, type ArchiveDay, type DayEntry } from "../lib/archive.ts";
 import { utcDate } from "../lib/risk.ts";
 import Anthropic from "@anthropic-ai/sdk";
-import { writeEditorial } from "./editor.ts";
+import { EDITOR_VERSION, writeEditorial } from "./editor.ts";
 import { pickPicture } from "./picture.ts";
 import { generatedArt } from "../lib/images.ts";
 
@@ -63,7 +63,7 @@ if (process.env.ANTHROPIC_API_KEY) {
   for (const [rank, s] of stories.entries()) {
     if (written >= EDITOR_PER_RUN) break;
     const { date, story } = find(s.id);
-    if (!story || story.editorial) continue;
+    if (!story || (story.editorial?.version ?? 1) >= EDITOR_VERSION) continue;
     try {
       const { editorial, usage } = await writeEditorial(client, story, rank < TOP_STORIES);
       console.log(`AI desk: ${usage} ${editorial ? "ok" : "declined"} | ${story.headline.slice(0, 70)}`);

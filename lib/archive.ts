@@ -23,6 +23,7 @@ export type Editorial = {
   note: string; // what the sources disagree on, if anything
   model: string;
   writtenAt: number;
+  version?: number; // prompt version (scripts/editor.ts EDITOR_VERSION)
 };
 
 export type ArchivedStory = {

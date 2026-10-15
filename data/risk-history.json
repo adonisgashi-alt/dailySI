@@ -3,128 +3,171 @@
   "date": "2026-10-15",
   "replacement": {
    "meter": "replacement",
-   "index": 70,
+   "index": 66,
    "level": "High",
-   "pressure": 34,
-   "relief": 17,
+   "raw": 66,
+   "news": 67,
+   "anchor": {
+    "index": 66,
+    "parts": [
+     {
+      "label": "Job postings in AI-exposed work",
+      "value": 0.835,
+      "index": 72,
+      "source": "Indeed Hiring Lab via FRED; software, customer service and admin postings vs all postings, Feb 2020 = 1",
+      "asOf": "2026-10-09"
+     },
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.28,
+      "index": 59,
+      "source": "Epoch AI notable models from companies; 63 in the last 180 days vs 100 in the year before",
+      "asOf": "2026-10-01"
+     }
+    ]
+   },
+   "pressure": 11.4,
+   "relief": 0,
    "drivers": [
     {
-     "label": "AGI / ASI progress",
-     "delta": 11.168284846107618,
-     "storyId": "1rej6oq1anqb",
-     "headline": "Meta Stock Climbs As Zuckerberg Touts Muse Wonder As Frontier AI Model"
+     "label": "Capability releases",
+     "delta": 3.607972807294447,
+     "storyId": "8svjt28dq9sq",
+     "headline": "Meta Launches Muse Wonder, Its First Frontier AI Model, at $4 per Million Tokens",
+     "reason": "A new frontier model with coding and memory features raises capability and automation potential, but this is only a product launch with no reported job effects."
     },
     {
-     "label": "Regulation & oversight",
-     "delta": -4.829844151833626,
-     "storyId": "1g3v1c81vahq",
-     "headline": "From Bank Back Offices to Power Grids, Frontier AI Labs Push Deeper Into the Enterprise"
+     "label": "Autonomous agents",
+     "delta": 1.8128123676068975,
+     "storyId": "a9en9x1r2gzp",
+     "headline": "Frontier AI cleared every OT attack goal Booz Allen set in its lab",
+     "reason": "AI agents autonomously completing complex OT tasks shows agentic capability, though the work is offensive and lab-only."
     },
     {
-     "label": "AGI / ASI progress",
-     "delta": 4.530868928198189,
-     "storyId": "5u6qqao6nlmk",
-     "headline": "SoftBank CEO Masayoshi Son: Superintelligence, AI Investing, and the Future of Robotics"
+     "label": "Capability releases",
+     "delta": 1.282944700550315,
+     "storyId": "1ms7jjf4rsxl",
+     "headline": "Gemini 4 Argon: Built to solve your hardest problems",
+     "reason": "A new frontier model with agentic and robotics focus raises capability for work automation, though benchmark gains alone don't show job replacement."
     },
     {
-     "label": "Worker pushback",
-     "delta": -3.9885349808159143,
-     "storyId": "1ov80pa7tmj7",
-     "headline": "Eight US states sue OpenAI, claiming ChatGPT harms young users"
+     "label": "Autonomous agents",
+     "delta": 0.846481724890614,
+     "storyId": "1wq27xorydlt",
+     "headline": "Amp puts AI agents to work beyond code with OpenAI models",
+     "reason": "A vendor showcase of agents doing non-coding work; suggests broader agent use but gives no evidence of jobs displaced."
     },
     {
-     "label": "AGI / ASI progress",
-     "delta": 3.6376180418621447,
-     "storyId": "1xqpo13alyqs",
-     "headline": "‘Godfather Of AI’ Geoffrey Hinton Rips Into Trump Over Artificial Intelligence"
+     "label": "Automation",
+     "delta": 0.846481724890614,
+     "storyId": "p4rn9v1h2j2p",
+     "headline": "SentinelOne cuts malware analysis from weeks to hours",
+     "reason": "A security firm speeds up malware analysis with AI, which is some automation of expert work, but the report frames it as added capacity, not job cuts."
     }
    ],
    "components": [
     {
-     "label": "AGI / ASI progress",
-     "value": 23.9
+     "label": "Capability releases",
+     "value": 5.5
     },
     {
      "label": "Autonomous agents",
-     "value": 9.1
+     "value": 4.9
     },
     {
-     "label": "Regulation & oversight",
-     "value": -8
-    },
-    {
-     "label": "Worker pushback",
-     "value": -6
-    },
-    {
-     "label": "Capability releases",
-     "value": 3.7
-    },
-    {
-     "label": "Capability limits",
-     "value": -3.5
-    },
-    {
-     "label": "Safety measures",
-     "value": -2.5
+     "label": "Automation",
+     "value": 1
     }
    ],
-   "basedOn": 30,
+   "basedOn": 11,
+   "scoredByAI": 27,
    "computedAt": 1792022400000
   },
   "extinction": {
    "meter": "extinction",
-   "index": 56,
-   "level": "Elevated",
-   "pressure": 22,
-   "relief": 6,
+   "index": 33,
+   "level": "Guarded",
+   "raw": 33,
+   "news": 29,
+   "anchor": {
+    "index": 37,
+    "parts": [
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.28,
+      "index": 37,
+      "source": "Epoch AI notable models from companies; 63 in the last 180 days vs 100 in the year before",
+      "asOf": "2026-10-01"
+     }
+    ]
+   },
+   "pressure": 9.3,
+   "relief": 11.6,
    "drivers": [
     {
-     "label": "AGI / ASI progress",
-     "delta": 7.445523230738411,
-     "storyId": "1rej6oq1anqb",
-     "headline": "Meta Stock Climbs As Zuckerberg Touts Muse Wonder As Frontier AI Model"
+     "label": "Race dynamics",
+     "delta": 3.607972807294447,
+     "storyId": "8svjt28dq9sq",
+     "headline": "Meta Launches Muse Wonder, Its First Frontier AI Model, at $4 per Million Tokens",
+     "reason": "A competitive frontier model launch signals race dynamics, but no safety testing, misaligned behavior, or weapons uplift is reported."
     },
     {
-     "label": "AGI / ASI progress",
-     "delta": 4.530868928198189,
-     "storyId": "5u6qqao6nlmk",
-     "headline": "SoftBank CEO Masayoshi Son: Superintelligence, AI Investing, and the Future of Robotics"
+     "label": "Other",
+     "delta": -3.2901815392977625,
+     "storyId": "1ov80pa7tmj7",
+     "headline": "Eight US states sue OpenAI, claiming ChatGPT harms young users",
+     "reason": "Lawsuits over child safety and deception show regulatory pressure on AI firms, but not a catastrophic loss-of-control risk."
     },
     {
-     "label": "AGI / ASI progress",
-     "delta": 3.6376180418621447,
+     "label": "Alignment progress",
+     "delta": -3.2808108642030382,
+     "storyId": "1ygbcervsumb",
+     "headline": "Nvidia, worth $5.5tn, donates $250m to UK for AI safety research",
+     "reason": "Funding for UK AI safety research, cutoff threats for reckless users, and US-China safety cooperation calls modestly lower catastrophe risk."
+    },
+    {
+     "label": "Existential warnings",
+     "delta": 1.8188090209310723,
      "storyId": "1xqpo13alyqs",
-     "headline": "‘Godfather Of AI’ Geoffrey Hinton Rips Into Trump Over Artificial Intelligence"
+     "headline": "‘Godfather Of AI’ Geoffrey Hinton Rips Into Trump Over Artificial Intelligence",
+     "reason": "Prominent expert warns superintelligence may arrive within a decade and humanity isn't ready, a warning rather than new evidence."
     },
     {
-     "label": "Capability limits",
-     "delta": -3.465339351626138,
-     "storyId": "6a05zuidlwma",
-     "headline": "Europe’s leaders abandon the race for frontier AI"
-    },
-    {
-     "label": "AGI / ASI progress",
-     "delta": 3.44929327116056,
-     "storyId": "1odjgqaapk2i",
-     "headline": "Arctic Wolf Expands the Aurora Superintelligence Platform to Deliver AI Visibility, Broader Security Coverage, and New Generative Assistant Skills"
+     "label": "Weapons capability",
+     "delta": 1.8128123676068975,
+     "storyId": "a9en9x1r2gzp",
+     "headline": "Frontier AI cleared every OT attack goal Booz Allen set in its lab",
+     "reason": "Frontier AI reliably attacking industrial control systems in a lab raises concern about weapons-like misuse against critical infrastructure."
     }
    ],
    "components": [
     {
-     "label": "AGI / ASI progress",
-     "value": 23.9
+     "label": "Other",
+     "value": -6.6
     },
     {
-     "label": "International coordination",
-     "value": -4.2
+     "label": "Alignment progress",
+     "value": -3.3
     },
     {
-     "label": "Capability limits",
-     "value": -3.5
+     "label": "Race dynamics",
+     "value": 3.2
+    },
+    {
+     "label": "Existential warnings",
+     "value": 1.8
+    },
+    {
+     "label": "Weapons capability",
+     "value": 1.8
+    },
+    {
+     "label": "Loss of control",
+     "value": 0.8
     }
    ],
-   "basedOn": 30,
+   "basedOn": 10,
+   "scoredByAI": 27,
    "computedAt": 1792022400000
   }
  }

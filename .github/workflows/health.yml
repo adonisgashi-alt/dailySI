@@ -1,0 +1,49 @@
+name: Health check
+
+# Checks the live site and the scheduled jobs every 6 hours. On failure it
+# opens (or updates) a GitHub issue, which emails the repo owner; when the
+# site recovers it closes the issue.
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 200
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: run
+        run: |
+          set +e
+          node --experimental-strip-types scripts/health.ts > report.txt 2>&1
+          echo "status=$?" >> "$GITHUB_OUTPUT"
+          cat report.txt
+      - name: Open or update issue
+        if: steps.run.outputs.status != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create site-health --color B60205 --description "Automated health check" 2>/dev/null || true
+          body="$(printf 'The automated health check found problems at %s UTC:\n\n%s\n\n[Run log](%s/%s/actions/runs/%s)' "$(date -u +'%F %H:%M')" "$(grep '^- ' report.txt || cat report.txt)" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID")"
+          open=$(gh issue list --label site-health --state open --json number --jq '.[0].number')
+          if [ -n "$open" ]; then gh issue comment "$open" --body "$body"; else gh issue create --title "Site health check failed" --label site-health --body "$body"; fi
+      - name: Close issue when healthy
+        if: steps.run.outputs.status == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for n in $(gh issue list --label site-health --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Health check passing again at $(date -u +'%F %H:%M') UTC."
+          done

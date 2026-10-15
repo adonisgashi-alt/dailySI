@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: SITE.name, description: SITE.description },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
   icons: { icon: "/icon.svg" },
+  other: { "google-adsense-account": SITE.adsenseClient },
 };
 
 export const viewport: Viewport = { themeColor: "#ffffff", colorScheme: "light" };
@@ -25,6 +26,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const ed = await getEdition();
   return (
     <html lang="en" className={fontVariables}>
+      <head>
+        {/* Google AdSense: verifies the site and serves ads once enabled in the AdSense dashboard. */}
+        <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsenseClient}`} crossOrigin="anonymous" />
+      </head>
       <body>
         <Header generatedAt={ed.generatedAt} today={ed.today} />
         <main className="wrap">{children}</main>

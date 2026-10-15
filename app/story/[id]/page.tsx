@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getEdition, getStory } from "@/lib/news";
+import { getEdition, getStory, type EditionStory } from "@/lib/news";
+import { findArchived, type ArchivedStory } from "@/lib/archive";
+import { SECTION_BY_SLUG, SECTIONS } from "@/lib/sections";
 import { ago } from "@/lib/format";
 import { SITE } from "@/lib/site";
 import { ArtFigure, SectionKicker, StoryMeta, clip } from "@/components/StoryBits";
@@ -16,8 +18,19 @@ export async function generateStaticParams() {
 
 type Props = { params: Promise<{ id: string }> };
 
+type Shown = Omit<EditionStory, "reports" | "tokens"> & { reports: ArchivedStory["reports"]; archived: boolean };
+
+/** The live story if it is still on the wire, otherwise the archived copy. */
+async function load(id: string): Promise<Shown | null> {
+  const live = await getStory(id);
+  if (live) return { ...live, archived: false };
+  const a = await findArchived(id);
+  if (!a) return null;
+  return { ...a, section: SECTION_BY_SLUG.get(a.section) ?? SECTIONS[0], relevance: 0, archived: true } as Shown;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const story = await getStory((await params).id);
+  const story = await load((await params).id);
   if (!story) return { title: "Story not found", robots: { index: false } };
   const description = story.summary || story.basis;
   const image = story.art.src.startsWith("/") ? `${SITE.url}${story.art.src}` : story.art.src;
@@ -32,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StoryPage({ params }: Props) {
   const id = (await params).id;
-  const story = await getStory(id);
+  const story = await load(id);
   if (!story) notFound();
   const ed = await getEdition();
   const now = ed.generatedAt;
@@ -62,6 +75,9 @@ export default async function StoryPage({ params }: Props) {
         <span>Daily Super Intelligence wire desk</span>
         <span>First reported {ago(story.firstSeen, now)}</span>
         <span>Updated {ago(story.lastUpdate, now)}</span>
+        {story.archived && (
+          <Link href={`/archive/${new Date(story.firstSeen).toISOString().slice(0, 10)}`} style={{ textDecoration: "underline" }}>From the archive</Link>
+        )}
       </div>
       <ArtFigure art={story.art} caption priority />
 

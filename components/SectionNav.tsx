@@ -9,6 +9,7 @@ export const NAV = [
   { href: "/latest", name: "Latest" },
   ...SECTIONS.map((s) => ({ href: `/section/${s.slug}`, name: s.nav })),
   { href: "/risk", name: "Risk Meters" },
+  { href: "/archive", name: "Archive" },
 ];
 
 export function SectionNav() {

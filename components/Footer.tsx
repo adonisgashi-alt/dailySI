@@ -14,6 +14,7 @@ export function Footer() {
               <li><Link href="/">Front Page</Link></li>
               <li><Link href="/latest">Latest News</Link></li>
               <li><Link href="/queue">Awaiting Confirmation</Link></li>
+              <li><Link href="/archive">Archive</Link></li>
             </ul>
           </div>
           <div>
@@ -33,6 +34,7 @@ export function Footer() {
             <ul>
               <li><Link href="/risk">Risk Meters</Link></li>
               <li><Link href="/about">Standards &amp; Methods</Link></li>
+              <li><Link href="/privacy">Privacy Policy</Link></li>
               <li><a href="/feed.xml">RSS Feed</a></li>
               <li><a href="/api/news">Open Data (JSON)</a></li>
               <li><a href="/llms.txt">For AI Assistants</a></li>

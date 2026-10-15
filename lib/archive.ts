@@ -1,0 +1,71 @@
+// The permanent archive. A scheduled job (scripts/archive.ts) files every
+// confirmed story into data/archive in the GitHub repo; the site reads it back
+// at request time, so archive updates need no redeploy.
+//
+// Layout:
+//   data/archive/days.json            [{ date, count }] newest first
+//   data/archive/days/YYYY-MM-DD.json  { date, stories: ArchivedStory[] }
+//   data/archive/ids/<xx>.json         { [storyId]: date } sharded by id prefix
+//   data/risk-history.json             daily meter readings
+
+import type { Art } from "./images.ts";
+import type { DailyReading } from "./daily.ts";
+import type { Status } from "./desk.ts";
+
+export type ArchivedReport = { title: string; link: string; outlet: string; publishedAt: number; summary: string; primary: boolean };
+
+export type ArchivedStory = {
+  id: string;
+  aliases?: string[]; // earlier ids of the same story
+  headline: string;
+  summary: string;
+  section: string; // section slug
+  status: Status;
+  basis: string;
+  confidence: number;
+  outlets: string[];
+  firstSeen: number;
+  lastUpdate: number;
+  art: Art;
+  reports: ArchivedReport[];
+};
+
+export type ArchiveDay = { date: string; stories: ArchivedStory[] };
+export type DayEntry = { date: string; count: number };
+
+export const shardOf = (id: string) => id.slice(0, 2);
+
+const REPO_DATA = "https://raw.githubusercontent.com/adonisgashi-alt/dailySI/main/data";
+
+async function readData<T>(rel: string, revalidate: number): Promise<T | null> {
+  // Local data (development, tests, or DAILYSI_DATA_DIR) or the repo on GitHub.
+  const dir = process.env.DAILYSI_DATA_DIR ?? (process.env.DAILYSI_FIXTURES ? "data" : "");
+  try {
+    if (dir) {
+      const { readFile } = await import("node:fs/promises");
+      const path = await import("node:path");
+      return JSON.parse(await readFile(path.join(dir, rel), "utf8")) as T;
+    }
+    const base = (process.env.DATA_BASE_URL ?? REPO_DATA).replace(/\/$/, "");
+    const res = await fetch(`${base}/${rel}`, { next: { revalidate }, signal: AbortSignal.timeout(6000) });
+    return res.ok ? ((await res.json()) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+export const getArchiveDays = async () => (await readData<DayEntry[]>("archive/days.json", 600)) ?? [];
+
+export const getArchiveDay = (date: string) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(date) ? readData<ArchiveDay>(`archive/days/${date}.json`, 600) : Promise.resolve(null);
+
+export const getRiskHistory = async () => readData<DailyReading[]>("risk-history.json", 900);
+
+export async function findArchived(id: string): Promise<ArchivedStory | null> {
+  if (!/^[a-z0-9]{4,20}$/.test(id)) return null;
+  const shard = await readData<Record<string, string>>(`archive/ids/${shardOf(id)}.json`, 600);
+  const date = shard?.[id];
+  if (!date) return null;
+  const day = await getArchiveDay(date);
+  return day?.stories.find((s) => s.id === id || s.aliases?.includes(id)) ?? null;
+}

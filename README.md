@@ -36,6 +36,19 @@ Offline development: set `DAILYSI_FIXTURES=/path/to/dir` to read `<dir>/<n>.xml`
 | `lib/news.ts` | Builds an edition (fetch → desk → art → risk) |
 | `app/` | Front page, story pages, `/about` methodology, APIs |
 
+## Runs itself
+
+| Job | When | What it does |
+| --- | --- | --- |
+| Site (Vercel) | every 10 min | Re-reads the feeds, verifies, rebuilds pages (ISR) |
+| `archive.yml` | every 30 min | Files every confirmed story into `data/archive` so story pages never expire |
+| `daily-risk.yml` | 00:07 UTC | Records the day's risk-meter readings in `data/risk-history.json` |
+| `health.yml` | every 6 h | Checks the live site and the jobs; opens a GitHub issue on failure, closes it on recovery |
+| `ci.yml` | every change | Typecheck, tests, build; auto-merges passing Dependabot patch/minor updates |
+| Dependabot | weekly | Opens dependency update PRs against `main` |
+
+The site reads `data/` straight from GitHub at request time, and `vercel.json` skips rebuilding for data-only commits, so the jobs never trigger deploys.
+
 ## Deploy
 
-Deployed on Vercel from this repository. Every push to the production branch redeploys. No environment variables are required.
+Deployed on Vercel from this repository's `main` branch. Every code push to `main` redeploys. No environment variables are required. `public/ads.txt` and the AdSense tag in `app/layout.tsx` are set up for Google AdSense.

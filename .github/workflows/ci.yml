@@ -1,0 +1,44 @@
+name: CI
+
+# Every change must typecheck, pass tests and build. Dependabot updates that
+# pass are merged automatically (patch and minor versions only).
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths-ignore: ["data/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  automerge:
+    needs: test
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - id: meta
+        uses: dependabot/fetch-metadata@v2
+      - name: Merge patch and minor updates
+        if: steps.meta.outputs.update-type != 'version-update:semver-major'
+        run: gh pr merge --squash --delete-branch "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

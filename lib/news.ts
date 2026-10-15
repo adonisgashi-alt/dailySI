@@ -3,18 +3,18 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { SOURCES, PRIMARY_OUTLETS, type Source } from "./sources.ts";
 import { parseFeed, type RawItem } from "./parse.ts";
-import { editDesk, type Story } from "./desk.ts";
+import type { Story } from "./desk.ts";
 import { dailyReading, type DailyReading } from "./daily.ts";
-import { artFor, type Art } from "./images.ts";
-import { sectionFor, type Section } from "./sections.ts";
-import historyJson from "../data/risk-history.json";
+import { buildStories, type EditionStory } from "./edition.ts";
+import { getRiskHistory } from "./archive.ts";
+import bundledHistory from "../data/risk-history.json";
 
 // How often the wire is re-read, in seconds. Pages built from it use the same.
 export const WIRE_REFRESH = 600;
 
 export type FeedStatus = { outlet: string; ok: boolean; items: number };
 
-export type EditionStory = Story & { art: Art; section: Section };
+export type { EditionStory };
 
 export type Edition = {
   stories: EditionStory[];
@@ -27,7 +27,6 @@ export type Edition = {
   generatedAt: number;
 };
 
-const HISTORY = historyJson as unknown as DailyReading[];
 
 export async function readSource(src: Source, index: number): Promise<{ items: RawItem[]; ok: boolean }> {
   // Offline development/testing: DAILYSI_FIXTURES=<dir> reads <dir>/<index>.xml.
@@ -60,9 +59,7 @@ export const getEdition = cache(async (): Promise<Edition> => {
   const results = await Promise.all(SOURCES.map((s, i) => readSource(s, i)));
   const items = results.flatMap((r) => r.items);
   const now = Date.now();
-  const desk = editDesk(items, now);
-  const top = desk.confirmed.slice(0, 60);
-  const art = await artFor(top);
+  const { desk, stories } = await buildStories(items, now);
 
   const feeds = new Map<string, FeedStatus>();
   SOURCES.forEach((s, i) => {
@@ -75,6 +72,8 @@ export const getEdition = cache(async (): Promise<Edition> => {
   // The meters publish once a day. Use the stored daily reading when the daily
   // job has run; otherwise compute today's reading from news up to midnight UTC,
   // which gives the same value all day.
+  // History lives in the repo and is read live, so daily readings need no redeploy.
+  const HISTORY = (await getRiskHistory()) ?? (bundledHistory as unknown as DailyReading[]);
   const computed = dailyReading(items, now);
   const stored = HISTORY.find((h) => h.date === computed.date);
   const today = stored ? { ...stored, provisional: false } : { ...computed, provisional: true };
@@ -83,11 +82,7 @@ export const getEdition = cache(async (): Promise<Edition> => {
     .slice(-90);
 
   return {
-    stories: top.map((s) => ({
-      ...s,
-      art: art.get(s.id)!,
-      section: sectionFor(`${s.headline} ${s.headline} ${s.summary} ${s.reports.map((r) => r.title).join(" ")}`),
-    })),
+    stories,
     queue: desk.queue.slice(0, 20),
     today,
     history,

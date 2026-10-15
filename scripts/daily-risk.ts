@@ -3,26 +3,12 @@
 //   node --experimental-strip-types scripts/daily-risk.ts
 
 import { readFile, writeFile } from "node:fs/promises";
-import { SOURCES, PRIMARY_OUTLETS } from "../lib/sources.ts";
-import { parseFeed, type RawItem } from "../lib/parse.ts";
+import { fetchAllFeeds } from "./feeds.ts";
 import { dailyReading, type DailyReading } from "../lib/daily.ts";
 
 const FILE = new URL("../data/risk-history.json", import.meta.url);
 
-async function read(url: string, outlet: string, primary?: boolean): Promise<RawItem[]> {
-  try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; DailySuperIntelligence/1.0; +https://daily-si.com)" },
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!res.ok) return [];
-    return parseFeed(await res.text(), outlet, primary, PRIMARY_OUTLETS);
-  } catch {
-    return [];
-  }
-}
-
-const items = (await Promise.all(SOURCES.map((s) => read(s.url, s.outlet, s.primary)))).flat();
+const items = await fetchAllFeeds();
 if (items.length < 20) {
   console.error(`Only ${items.length} items fetched; not recording a reading.`);
   process.exit(1);

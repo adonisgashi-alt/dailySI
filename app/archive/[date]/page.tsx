@@ -3,12 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getArchiveDay, getArchiveDays } from "@/lib/archive";
 import { SECTION_BY_SLUG } from "@/lib/sections";
-import { ArtFigure, clip } from "@/components/StoryBits";
+import { dek, ArtFigure, clip } from "@/components/StoryBits";
+import { STATIC, allArchiveDates } from "@/lib/static";
 
 export const revalidate = 600;
 
 export async function generateStaticParams() {
-  return [];
+  return STATIC ? (await allArchiveDates()).map((date) => ({ date })) : [];
 }
 
 type Props = { params: Promise<{ date: string }> };
@@ -49,7 +50,7 @@ export default async function ArchiveDayPage({ params }: Props) {
           </div>
           <div>
             <Link href={`/story/${s.id}`}><h2 className="hl-l" style={{ marginTop: 0 }}>{s.headline}</h2></Link>
-            {s.summary && <p className="summary">{clip(s.summary, 240)}</p>}
+            {dek(s) && <p className="summary">{clip(dek(s), 240)}</p>}
             <div className="meta">
               <span className="verified">✓ {s.outlets.length > 1 ? `Confirmed by ${s.outlets.length} outlets` : "Primary source"}</span>
               <span>{s.outlets.slice(0, 3).join(", ")}</span>

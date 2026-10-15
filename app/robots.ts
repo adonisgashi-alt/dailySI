@@ -13,6 +13,8 @@ const AI_CRAWLERS = [
   "DuckAssistBot", "YouBot", "MistralAI-User", "Diffbot", "Timpibot", "PetalBot", "AI2Bot",
 ];
 
+export const dynamic = "force-static";
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [

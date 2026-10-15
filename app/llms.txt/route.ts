@@ -2,6 +2,8 @@ import { getEdition } from "@/lib/news";
 import { SECTIONS } from "@/lib/sections";
 import { SITE } from "@/lib/site";
 
+export const dynamic = "force-static";
+
 export const revalidate = 600;
 
 // llms.txt: a plain-language guide to this site for AI assistants and crawlers.

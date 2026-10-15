@@ -29,6 +29,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node --experimental-strip-types scripts/archive.ts
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - name: Commit archive
         run: |
           git add data/archive

@@ -4,6 +4,8 @@ import { SECTIONS } from "@/lib/sections";
 import { SITE } from "@/lib/site";
 import { getArchiveDay, getArchiveDays } from "@/lib/archive";
 
+export const dynamic = "force-static";
+
 export const revalidate = 600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

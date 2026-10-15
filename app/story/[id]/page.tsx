@@ -6,14 +6,15 @@ import { findArchived, type ArchivedStory } from "@/lib/archive";
 import { SECTION_BY_SLUG, SECTIONS } from "@/lib/sections";
 import { ago } from "@/lib/format";
 import { SITE } from "@/lib/site";
-import { ArtFigure, SectionKicker, StoryMeta, clip } from "@/components/StoryBits";
+import { ArtFigure, SectionKicker, StoryMeta, clip, dek } from "@/components/StoryBits";
 import { JsonLd } from "@/components/JsonLd";
+import { STATIC, allStoryIds } from "@/lib/static";
 
 export const revalidate = 600;
 
 // Rendered on first request, then cached and refreshed like the front page.
 export async function generateStaticParams() {
-  return [];
+  return STATIC ? (await allStoryIds()).map((id) => ({ id })) : [];
 }
 
 type Props = { params: Promise<{ id: string }> };
@@ -32,8 +33,9 @@ async function load(id: string): Promise<Shown | null> {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const story = await load((await params).id);
   if (!story) return { title: "Story not found", robots: { index: false } };
-  const description = story.summary || story.basis;
-  const image = story.art.src.startsWith("/") ? `${SITE.url}${story.art.src}` : story.art.src;
+  const description = dek(story) || story.basis;
+  // Generated illustrations are embedded in the page in static mode, so they have no URL to share.
+  const image = story.art.src.startsWith("/") ? (STATIC ? `${SITE.url}/icon.svg` : `${SITE.url}${story.art.src}`) : story.art.src;
   return {
     title: story.headline,
     description,
@@ -58,8 +60,8 @@ export default async function StoryPage({ params }: Props) {
           "@context": "https://schema.org",
           "@type": "NewsArticle",
           headline: story.headline,
-          description: story.summary || story.basis,
-          image: [story.art.src.startsWith("/") ? `${SITE.url}${story.art.src}` : story.art.src],
+          description: dek(story) || story.basis,
+          image: [story.art.src.startsWith("/") ? (STATIC ? `${SITE.url}/icon.svg` : `${SITE.url}${story.art.src}`) : story.art.src],
           datePublished: new Date(story.firstSeen).toISOString(),
           dateModified: new Date(story.lastUpdate).toISOString(),
           articleSection: story.section.name,
@@ -70,7 +72,7 @@ export default async function StoryPage({ params }: Props) {
       />
       <SectionKicker section={story.section} />
       <h1 className="title">{story.headline}</h1>
-      {story.summary && <p className="dek">{story.summary}</p>}
+      {story.editorial ? <p className="dek">{story.editorial.whyItMatters}</p> : story.summary && <p className="dek">{story.summary}</p>}
       <div className="byline">
         <span>Daily Super Intelligence wire desk</span>
         <span>First reported {ago(story.firstSeen, now)}</span>
@@ -81,9 +83,28 @@ export default async function StoryPage({ params }: Props) {
       </div>
       <ArtFigure art={story.art} caption priority />
 
+      {story.editorial && (
+        <section className="editorial" aria-label="Summary">
+          {story.editorial.summary.split(/\n\s*\n/).map((para, i) => <p key={i}>{para}</p>)}
+          {story.editorial.keyFacts.length > 0 && (
+            <>
+              <h2>Key facts</h2>
+              <ul>{story.editorial.keyFacts.map((f) => <li key={f}>{f}</li>)}</ul>
+            </>
+          )}
+          <p className="ai-note">
+            Written by the Daily Super Intelligence AI desk from the {story.reports.length} report{story.reports.length === 1 ? "" : "s"} listed below, using only what
+            they state. Read the original reporting for full details.
+          </p>
+        </section>
+      )}
+
       <div className="verify-box">
         <h2>Verification</h2>
         <p style={{ margin: "0 0 4px" }}>{story.basis}</p>
+        {story.editorial && !story.editorial.sourcesAgree && story.editorial.note && (
+          <p style={{ margin: "0 0 4px", color: "var(--warn)" }}>Sources differ: {story.editorial.note}</p>
+        )}
         <p style={{ margin: 0, color: "var(--ink-3)" }}>
           Confidence {story.confidence}% · {story.reports.length} report{story.reports.length === 1 ? "" : "s"} matched to this event ·{" "}
           <Link href="/about" style={{ textDecoration: "underline" }}>How we verify</Link>

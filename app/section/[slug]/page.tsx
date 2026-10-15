@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEdition } from "@/lib/news";
 import { SECTIONS, SECTION_BY_SLUG } from "@/lib/sections";
-import { ArtFigure, StoryMeta, clip } from "@/components/StoryBits";
+import { dek, ArtFigure, StoryMeta, clip } from "@/components/StoryBits";
 
 export const revalidate = 600;
 
@@ -42,7 +42,7 @@ export default async function SectionPage({ params }: Props) {
             <div className="when">{new Date(s.lastUpdate).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC" })} UTC</div>
             <div>
               <Link href={`/story/${s.id}`}><h2 className="hl-l" style={{ marginTop: 0 }}>{s.headline}</h2></Link>
-              {s.summary && <p className="summary">{clip(s.summary, 260)}</p>}
+              {dek(s) && <p className="summary">{clip(dek(s), 260)}</p>}
               <StoryMeta story={s} now={now} />
             </div>
             <Link href={`/story/${s.id}`} tabIndex={-1} aria-hidden="true"><ArtFigure art={s.art} /></Link>

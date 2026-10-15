@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getEdition } from "@/lib/news";
-import { ArtFigure, SectionKicker, StoryMeta, clip } from "@/components/StoryBits";
+import { dek, ArtFigure, SectionKicker, StoryMeta, clip } from "@/components/StoryBits";
 
 export const revalidate = 600;
 
@@ -26,7 +26,7 @@ export default async function Latest() {
           <div>
             <SectionKicker section={s.section} />
             <Link href={`/story/${s.id}`}><h2 className="hl-l">{s.headline}</h2></Link>
-            {s.summary && <p className="summary">{clip(s.summary, 220)}</p>}
+            {dek(s) && <p className="summary">{clip(dek(s), 220)}</p>}
             <StoryMeta story={s} now={ed.generatedAt} />
           </div>
           <Link href={`/story/${s.id}`} tabIndex={-1} aria-hidden="true"><ArtFigure art={s.art} /></Link>

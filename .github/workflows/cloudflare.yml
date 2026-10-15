@@ -1,0 +1,56 @@
+name: Deploy to Cloudflare Pages
+
+# Builds the whole site as static files and publishes it to Cloudflare Pages
+# every hour and on every code change. Does nothing until the
+# CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets are set.
+on:
+  schedule:
+    - cron: "29 * * * *"
+  push:
+    branches: [main]
+    paths-ignore: ["data/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Check Cloudflare is connected
+        id: cf
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Cloudflare secrets not set yet; skipping."; echo "ready=false" >> "$GITHUB_OUTPUT"
+          else echo "ready=true" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.cf.outputs.ready == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - if: steps.cf.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - if: steps.cf.outputs.ready == 'true'
+        run: npm ci
+      - name: Build static site
+        if: steps.cf.outputs.ready == 'true'
+        run: npm run build && scripts/prune-static.sh out
+        env:
+          STATIC_EXPORT: "1"
+          DAILYSI_DATA_DIR: data
+      - name: Publish
+        if: steps.cf.outputs.ready == 'true'
+        run: |
+          npx --yes wrangler@4.151.0 pages project create daily-si --production-branch=main 2>/dev/null || true
+          npx --yes wrangler@4.151.0 pages deploy out --project-name=daily-si --branch=main --commit-dirty=true

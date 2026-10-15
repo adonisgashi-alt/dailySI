@@ -14,6 +14,17 @@ import type { Status } from "./desk.ts";
 
 export type ArchivedReport = { title: string; link: string; outlet: string; publishedAt: number; summary: string; primary: boolean };
 
+/** Original write-up by the AI desk (scripts/editor.ts), based only on the reports. */
+export type Editorial = {
+  summary: string; // paragraphs separated by blank lines
+  whyItMatters: string;
+  keyFacts: string[];
+  sourcesAgree: boolean;
+  note: string; // what the sources disagree on, if anything
+  model: string;
+  writtenAt: number;
+};
+
 export type ArchivedStory = {
   id: string;
   aliases?: string[]; // earlier ids of the same story
@@ -28,6 +39,7 @@ export type ArchivedStory = {
   lastUpdate: number;
   art: Art;
   reports: ArchivedReport[];
+  editorial?: Editorial;
 };
 
 export type ArchiveDay = { date: string; stories: ArchivedStory[] };

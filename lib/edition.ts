@@ -5,9 +5,9 @@ import type { RawItem } from "./parse.ts";
 import { editDesk, type Story } from "./desk.ts";
 import { artFor, type Art } from "./images.ts";
 import { sectionFor, type Section } from "./sections.ts";
-import type { ArchivedStory } from "./archive.ts";
+import type { ArchivedStory, Editorial } from "./archive.ts";
 
-export type EditionStory = Story & { art: Art; section: Section };
+export type EditionStory = Story & { art: Art; section: Section; editorial?: Editorial };
 
 export async function buildStories(items: RawItem[], now: number, limit = 60) {
   const desk = editDesk(items, now);

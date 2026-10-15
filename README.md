@@ -41,9 +41,10 @@ Offline development: set `DAILYSI_FIXTURES=/path/to/dir` to read `<dir>/<n>.xml`
 | Job | When | What it does |
 | --- | --- | --- |
 | Site (Vercel) | every 10 min | Re-reads the feeds, verifies, rebuilds pages (ISR) |
-| `archive.yml` | every 30 min | Files every confirmed story into `data/archive` so story pages never expire |
+| `archive.yml` | every 30 min | Files every confirmed story into `data/archive` so story pages never expire, and has the AI desk write original summaries (Claude Sonnet 5.5 for the top 8 stories, Claude Haiku 5.5 for the rest; needs the `ANTHROPIC_API_KEY` secret) |
 | `daily-risk.yml` | 00:07 UTC | Records the day's risk-meter readings in `data/risk-history.json` |
 | `health.yml` | every 6 h | Checks the live site and the jobs; opens a GitHub issue on failure, closes it on recovery |
+| `cloudflare.yml` | hourly + every code change | Builds the site as static files and publishes it to Cloudflare Pages (needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets) |
 | `ci.yml` | every change | Typecheck, tests, build; auto-merges passing Dependabot patch/minor updates |
 | Dependabot | weekly | Opens dependency update PRs against `main` |
 

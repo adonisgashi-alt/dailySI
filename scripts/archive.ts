@@ -10,6 +10,12 @@ import { buildStories, toArchived } from "../lib/edition.ts";
 import { fileStories, dayIndex, type ArchiveState } from "../lib/archive-file.ts";
 import { shardOf, type ArchiveDay, type DayEntry } from "../lib/archive.ts";
 import { utcDate } from "../lib/risk.ts";
+import Anthropic from "@anthropic-ai/sdk";
+import { writeEditorial } from "./editor.ts";
+
+// How many stories the AI desk writes per run, and how many top stories go to the bigger model.
+const EDITOR_PER_RUN = Number(process.env.EDITOR_PER_RUN ?? 25);
+const TOP_STORIES = 8;
 
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), "..", "data", "archive");
 const DAYS = path.join(ROOT, "days");
@@ -41,6 +47,37 @@ for (let i = 0; i < 10; i++) {
 }
 
 const changed = fileStories(state, stories.map(toArchived), loadDay);
+
+// AI desk: original write-ups for stories that don't have one yet, best stories first.
+if (process.env.ANTHROPIC_API_KEY) {
+  const client = new Anthropic();
+  const find = (id: string) => {
+    const d = state.ids[id];
+    const file = d ? state.days.get(d) ?? loadDay(d) : undefined;
+    if (file && !state.days.has(d)) state.days.set(d, file);
+    return { date: d, story: file?.stories.find((x) => x.id === id || x.aliases?.includes(id)) };
+  };
+  let written = 0;
+  for (const [rank, s] of stories.entries()) {
+    if (written >= EDITOR_PER_RUN) break;
+    const { date, story } = find(s.id);
+    if (!story || story.editorial) continue;
+    try {
+      const { editorial, usage } = await writeEditorial(client, story, rank < TOP_STORIES);
+      console.log(`AI desk: ${usage} ${editorial ? "ok" : "declined"} | ${story.headline.slice(0, 70)}`);
+      if (editorial) {
+        story.editorial = editorial;
+        changed.add(date);
+        written++;
+      }
+    } catch (e) {
+      console.error(`AI desk error (${(e as Error).message}); stopping for this run.`);
+      break;
+    }
+  }
+} else {
+  console.log("ANTHROPIC_API_KEY not set; skipping the AI desk.");
+}
 
 for (const d of changed) await writeFile(path.join(DAYS, `${d}.json`), json(state.days.get(d)));
 const shards = new Map<string, Record<string, string>>();

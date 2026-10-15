@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getEdition, type EditionStory } from "@/lib/news";
 import { SECTIONS } from "@/lib/sections";
 import { SITE } from "@/lib/site";
-import { ArtFigure, SectionKicker, StoryMeta, clip } from "@/components/StoryBits";
+import { dek, ArtFigure, SectionKicker, StoryMeta, clip } from "@/components/StoryBits";
 import { Meter, MeterNote } from "@/components/Meter";
 import { JsonLd } from "@/components/JsonLd";
 import { ago } from "@/lib/format";
@@ -18,7 +18,7 @@ function Package({ s, now, flip, lead }: { s: EditionStory; now: number; flip?: 
         <Link href={`/story/${s.id}`}>
           <h2 className={lead ? "hl-xl" : "hl-l"}>{s.headline}</h2>
         </Link>
-        {s.summary && <p className={`summary${lead ? " summary-l" : ""}`}>{clip(s.summary, lead ? 300 : 200)}</p>}
+        {dek(s) && <p className={`summary${lead ? " summary-l" : ""}`}>{clip(dek(s), lead ? 300 : 200)}</p>}
         <StoryMeta story={s} now={now} />
         {related.length > 0 && (
           <ul className="related">
@@ -44,7 +44,7 @@ function Small({ s, now, image = true }: { s: EditionStory; now: number; image?:
       {image && <Link href={`/story/${s.id}`} tabIndex={-1} aria-hidden="true"><ArtFigure art={s.art} /></Link>}
       <SectionKicker section={s.section} />
       <Link href={`/story/${s.id}`}><h3 className="hl-m">{s.headline}</h3></Link>
-      {s.summary && <p className="summary">{clip(s.summary, 140)}</p>}
+      {dek(s) && <p className="summary">{clip(dek(s), 140)}</p>}
       <StoryMeta story={s} now={now} />
     </article>
   );

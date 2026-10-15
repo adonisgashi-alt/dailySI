@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getEdition } from "@/lib/news";
 import { METERS, type MeterId } from "@/lib/risk";
 import { Meter } from "@/components/Meter";
+import { storyPath } from "@/lib/slug";
 
 export const revalidate = 600;
 
@@ -21,7 +22,7 @@ export default async function RiskPage() {
       <div className="section-intro">
         <h1>Risk Meters</h1>
         <p>
-          Two gauges, updated once a day at midnight UTC, that read the week&apos;s confirmed news. Reading for {ed.today.date}.
+          Two gauges, updated once a day at midnight UTC, that read the week&apos;s confirmed news alongside public data. Reading for {ed.today.date}.
         </p>
       </div>
 
@@ -31,9 +32,35 @@ export default async function RiskPage() {
         return (
           <section key={id} style={{ marginBottom: 34 }}>
             <Meter reading={r} previous={prev?.[id]} history={ed.history.map((h) => h[id].index)} drivers />
+            <h2 className="hl-m" style={{ marginTop: 18 }}>How today&apos;s reading is built</h2>
+            <ul className="drivers">
+              <li>
+                <span className="d">{r.news ?? r.index}</span>
+                <span><b>News.</b> {r.basedOn} relevant confirmed stories from the past seven days{r.scoredByAI ? `, ${r.scoredByAI} judged by our AI risk desk` : ""}.</span>
+              </li>
+              {r.anchor ? (
+                r.anchor.parts.map((p) => (
+                  <li key={p.label}>
+                    <span className="d">{p.index}</span>
+                    <span><b>{p.label}.</b> {p.value} as of {p.asOf} ({p.source}).</span>
+                  </li>
+                ))
+              ) : (
+                <li>
+                  <span className="d">–</span>
+                  <span><b>Public data.</b> Not yet connected; the reading is the news component alone.</span>
+                </li>
+              )}
+              {r.raw !== undefined && r.raw !== r.index && (
+                <li>
+                  <span className="d">{r.raw}</span>
+                  <span><b>Daily limit.</b> The combined reading was {r.raw}; a meter moves at most 3 points a day, so it reads {r.index}.</span>
+                </li>
+              )}
+            </ul>
             <h2 className="hl-m" style={{ marginTop: 18 }}>What moved the {def.short} meter</h2>
             {r.components.length === 0 ? (
-              <p className="summary">No strong signals this week; the meter sits at its baseline of {def.baseline}.</p>
+              <p className="summary">No strong signals this week; the news component sits at its baseline of {def.baseline}.</p>
             ) : (
               <ul className="drivers">
                 {r.components.map((c) => (
@@ -44,8 +71,18 @@ export default async function RiskPage() {
                 ))}
               </ul>
             )}
+            {r.drivers.some((d) => d.reason) && (
+              <ul className="drivers" style={{ marginTop: 10 }}>
+                {r.drivers.filter((d) => d.reason).map((d) => (
+                  <li key={d.storyId}>
+                    <span className="d" style={{ color: d.delta > 0 ? "var(--danger)" : "var(--ok)" }}>{d.delta > 0 ? "▲" : "▼"}</span>
+                    <span><Link href={storyPath({ id: d.storyId, headline: d.headline })}><b>{d.headline}</b></Link> {d.reason}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
             <p className="meta" style={{ marginTop: 8 }}>
-              Pressure {r.pressure} · Relief {r.relief} · Baseline {def.baseline} · Based on {r.basedOn} confirmed stories
+              Pressure {r.pressure} · Relief {r.relief} · News baseline {def.baseline}
             </p>
           </section>
         );
@@ -76,19 +113,21 @@ export default async function RiskPage() {
       <div className="prose">
         <h2>How the meters work</h2>
         <p>
-          Every day at midnight UTC, each confirmed story from the past seven days is checked for <b>pressure signals</b> (news that
-          points toward the risk) and <b>relief signals</b> (news that points away from it). Newer stories and stories confirmed by
-          more outlets count for more. The net signal moves the needle away from a baseline along a smooth curve, so no single
-          headline can pin it.
+          Each meter is built from two parts. <b>News</b>: every confirmed story from the past seven days is read by our AI risk
+          desk (Claude Haiku), which judges what the event actually means for the question, from −2 (strong evidence against the
+          risk) to +2 (strong evidence for), or marks it as not relevant. Stories not yet judged fall back to keyword signals. The
+          scores are averaged, with newer stories and stories confirmed by more outlets counting for more, and pulled toward the
+          baseline when there are few stories, so a busy news week does not move the needle by itself. <b>Public data</b>: where
+          we have it, slow-moving public indicators make up half of the reading. Finally, a meter moves at most 3 points a day.
         </p>
         <p>
-          <b>AI Replacing Humans Risk</b> (baseline 52). Pressure: workers being replaced, AI-linked layoffs, automation, autonomous
-          agents, superhuman results, self-improving systems, humanoid robots. Relief: regulation, safety measures, job creation and
+          <b>AI Replacing Humans Risk</b> (news baseline 52). Evidence for: workers being replaced, AI-linked layoffs, automation, autonomous
+          agents, superhuman results, self-improving systems, humanoid robots. Evidence against: regulation, safety measures, job creation and
           augmentation, documented capability limits, worker pushback.
         </p>
         <p>
-          <b>AI Extinction Risk</b> (baseline 30). Pressure: existential warnings, loss of control, deceptive or misaligned behavior,
-          self-improvement, weapons capabilities, military AI, race dynamics, safety-team departures. Relief: international
+          <b>AI Extinction Risk</b> (news baseline 30). Evidence for: existential warnings, loss of control, deceptive or misaligned behavior,
+          self-improvement, weapons capabilities, military AI, race dynamics, safety-team departures. Evidence against: international
           coordination, safety testing, alignment progress, regulation and compute governance, pauses, capability limits.
         </p>
         <p>

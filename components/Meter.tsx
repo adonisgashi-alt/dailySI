@@ -99,7 +99,7 @@ export function Meter({
 export function MeterNote() {
   return (
     <p className="note" style={{ marginTop: 10 }}>
-      Updated daily at 00:00 UTC from the week&apos;s confirmed news. Editorial signals, not forecasts. <Link href="/risk" style={{ textDecoration: "underline" }}>Full readings &amp; method</Link>
+      Updated daily at 00:00 UTC from the week&apos;s confirmed news, judged story by story. Editorial signals, not forecasts. <Link href="/risk" style={{ textDecoration: "underline" }}>Full readings &amp; method</Link>
     </p>
   );
 }

@@ -2,7 +2,9 @@
 // confirmed coverage says about two questions.
 //   - replacement: how strongly the news points toward AI replacing human work
 //   - extinction:  how strongly it points toward AI posing a threat to humanity
-// They are editorial signals derived from headlines, not forecasts or probabilities.
+// They are editorial signals, not forecasts or probabilities. Each reading blends
+// the news (judged story by story by the AI risk desk, with keyword signals as a
+// fallback) with slow-moving public data where we have it.
 
 import type { Story } from "./desk.ts";
 
@@ -76,19 +78,38 @@ export const METERS: Record<MeterId, MeterDef> = {
   },
 };
 
-export type Driver = { label: string; delta: number; storyId: string; headline: string };
+export type Driver = { label: string; delta: number; storyId: string; headline: string; reason?: string };
 
 export type Level = "Low" | "Guarded" | "Elevated" | "High" | "Severe";
 
+/** One story's effect on one meter, as judged by the AI risk desk (scripts/risk-desk.ts). */
+export type StoryRisk = { score: number; category: string; reason: string }; // score -2..+2
+
+/** The AI risk desk's verdict on a story; null for a meter means "not relevant to it". */
+export type RiskScores = {
+  replacement: StoryRisk | null;
+  extinction: StoryRisk | null;
+  model: string;
+  at: number;
+  version: number;
+};
+
+/** A slow-moving data anchor for a meter (see scripts/indicators.ts). */
+export type Anchor = { index: number; parts: { label: string; value: number; index: number; source: string; asOf: string }[] };
+
 export type RiskReading = {
   meter: MeterId;
-  index: number; // 0..100
+  index: number; // 0..100, what is published
   level: Level;
+  raw?: number; // before the daily movement cap
+  news?: number; // the news component, 0..100
+  anchor?: Anchor | null; // the data component
   pressure: number;
   relief: number;
   drivers: Driver[];
   components: { label: string; value: number }[];
   basedOn: number;
+  scoredByAI?: number; // how many of the stories the AI risk desk judged
   computedAt: number;
 };
 
@@ -100,54 +121,105 @@ export function levelFor(index: number): Level {
   return "Severe";
 }
 
-export function computeMeter(meter: MeterId, stories: Story[], now = Date.now()): RiskReading {
+// How much "no news" weighs against the week's stories: a handful of stories moves
+// the needle a little, a consistent week moves it a lot, and sheer volume adds nothing.
+const PRIOR_WEIGHT = 6;
+// Share of the reading that comes from the data anchor, when there is one.
+const ANCHOR_SHARE = 0.5;
+// The most a published reading may move in one day.
+export const MAX_DAILY_MOVE = 3;
+
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+
+export function computeMeter(
+  meter: MeterId,
+  stories: Story[],
+  now = Date.now(),
+  opts: { scores?: Map<string, RiskScores>; anchor?: Anchor | null } = {},
+): RiskReading {
   const def = METERS[meter];
   let pressure = 0;
   let relief = 0;
+  let sumW = 0;
+  let sumWS = 0;
+  let basedOn = 0;
+  let byAI = 0;
   const drivers: Driver[] = [];
   const comp = new Map<string, number>();
 
   for (const s of stories) {
     const ageD = (now - s.lastUpdate) / 8.64e7;
     if (ageD > 7 || ageD < -0.05) continue;
-    // Fresh, widely-corroborated stories move the needle most.
-    const weight = Math.exp(-Math.max(0, ageD) / 3) * (1 + Math.log2(s.outlets.length));
-    const text = `${s.headline} ${s.summary} ${s.reports.slice(0, 4).map((r) => r.title).join(" ")}`;
-    let delta = 0;
-    let top = "";
-    let topAbs = 0;
-    const apply = (sig: Signal, sign: 1 | -1) => {
-      if (!sig.re.test(text)) return;
-      const v = sig.w * weight;
-      delta += sign * v;
-      comp.set(sig.label, (comp.get(sig.label) ?? 0) + sign * v);
-      if (v > topAbs) [topAbs, top] = [v, sig.label];
-    };
-    def.pressure.forEach((sig) => apply(sig, 1));
-    def.relief.forEach((sig) => apply(sig, -1));
-    if (delta > 0) pressure += delta;
-    else relief -= delta;
-    if (top && Math.abs(delta) > 0.5) drivers.push({ label: top, delta, storyId: s.id, headline: s.headline });
+    // Fresh, widely-corroborated stories count most.
+    const weight = Math.exp(-Math.max(0, ageD) / 3) * (1 + Math.log2(Math.max(1, s.outlets.length)));
+    let score: number;
+    let label: string;
+    let reason: string | undefined;
+    const ai = opts.scores?.get(s.id);
+    if (ai) {
+      byAI++;
+      const v = ai[meter];
+      if (!v) continue; // the AI desk judged it irrelevant to this meter
+      score = clamp(Math.round(v.score), -2, 2);
+      label = v.category;
+      reason = v.reason;
+    } else {
+      // Not yet judged: fall back to the keyword signals.
+      const text = `${s.headline} ${s.summary} ${s.reports.slice(0, 4).map((r) => r.title).join(" ")}`;
+      let delta = 0;
+      let topAbs = 0;
+      label = "";
+      for (const [sigs, sign] of [[def.pressure, 1], [def.relief, -1]] as const)
+        for (const sig of sigs)
+          if (sig.re.test(text)) {
+            delta += sign * sig.w;
+            if (sig.w > topAbs) [topAbs, label] = [sig.w, sig.label];
+          }
+      if (!label) continue;
+      score = clamp(delta / 3, -2, 2);
+    }
+    basedOn++;
+    sumW += weight;
+    const v = weight * score;
+    sumWS += v;
+    if (v > 0) pressure += v;
+    else relief -= v;
+    comp.set(label, (comp.get(label) ?? 0) + v);
+    if (Math.abs(v) > 0.3) drivers.push({ label, delta: v, storyId: s.id, headline: s.headline, reason });
   }
 
-  const net = pressure - relief;
-  // A smooth curve around the baseline, so no single headline can pin the needle.
-  const room = net >= 0 ? 98 - def.baseline : def.baseline - 2;
-  const index = Math.round(Math.max(1, Math.min(99, def.baseline + room * Math.tanh(net / 40))));
+  // Weighted average score (-2..+2), pulled toward 0 when there are few stories.
+  const avg = sumWS / (sumW + PRIOR_WEIGHT);
+  const room = avg >= 0 ? 98 - def.baseline : def.baseline - 2;
+  const news = clamp(def.baseline + room * (avg / 2), 1, 99);
+  const anchor = opts.anchor ?? null;
+  const index = Math.round(clamp(anchor ? ANCHOR_SHARE * anchor.index + (1 - ANCHOR_SHARE) * news : news, 1, 99));
   return {
     meter,
     index,
     level: levelFor(index),
-    pressure: Math.round(pressure),
-    relief: Math.round(relief),
+    raw: index,
+    news: Math.round(news),
+    anchor,
+    pressure: Math.round(pressure * 10) / 10,
+    relief: Math.round(relief * 10) / 10,
     drivers: drivers.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)).slice(0, 5),
     components: [...comp.entries()]
       .map(([label, value]) => ({ label, value: Math.round(value * 10) / 10 }))
+      .filter((c) => c.value !== 0)
       .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
       .slice(0, 8),
-    basedOn: stories.length,
+    basedOn,
+    scoredByAI: byAI,
     computedAt: now,
   };
+}
+
+/** Limit how far a reading can move from the previous day's published value. */
+export function capMove(r: RiskReading, previous?: number): RiskReading {
+  if (previous === undefined) return r;
+  const index = Math.round(clamp(r.raw ?? r.index, previous - MAX_DAILY_MOVE, previous + MAX_DAILY_MOVE));
+  return { ...r, index, level: levelFor(index) };
 }
 
 /** Back-compat helper: the replacement meter. */

@@ -6,8 +6,7 @@ import { parseFeed, type RawItem } from "./parse.ts";
 import type { Story } from "./desk.ts";
 import { dailyReading, type DailyReading } from "./daily.ts";
 import { buildStories, type EditionStory } from "./edition.ts";
-import type { Art } from "./images.ts";
-import { getArchiveDay, getArchiveDays, getRiskHistory, type Editorial } from "./archive.ts";
+import { getIndicators, getRecentDesk, getRiskHistory } from "./archive.ts";
 import bundledHistory from "../data/risk-history.json";
 
 // How often the wire is re-read, in seconds. Pages built from it use the same.
@@ -62,16 +61,9 @@ export const getEdition = cache(async (): Promise<Edition> => {
   const now = Date.now();
   const { desk, stories } = await buildStories(items, now);
 
-  // Original write-ups from the AI desk live in the archive (last ~8 days covers the wire).
-  // So do pictures the AI picture editor checked.
-  const editorials = new Map<string, Editorial>();
-  const pictures = new Map<string, Art>();
-  for (const d of (await getArchiveDays()).slice(0, 8))
-    for (const s of (await getArchiveDay(d.date))?.stories ?? [])
-      for (const id of [s.id, ...(s.aliases ?? [])]) {
-        if (s.editorial) editorials.set(id, s.editorial);
-        if (s.art?.picked) pictures.set(id, s.art);
-      }
+  // Original write-ups, checked pictures and risk verdicts from the AI desks live in
+  // the archive (the last ~8 days cover the wire).
+  const [{ editorials, pictures, scores }, indicators] = await Promise.all([getRecentDesk(), getIndicators()]);
   for (const s of stories) {
     s.editorial = editorials.get(s.id);
     s.art = pictures.get(s.id) ?? s.art;
@@ -90,8 +82,10 @@ export const getEdition = cache(async (): Promise<Edition> => {
   // which gives the same value all day.
   // History lives in the repo and is read live, so daily readings need no redeploy.
   const HISTORY = (await getRiskHistory()) ?? (bundledHistory as unknown as DailyReading[]);
-  const computed = dailyReading(items, now);
-  const stored = HISTORY.find((h) => h.date === computed.date);
+  const date = new Date(now).toISOString().slice(0, 10);
+  const stored = HISTORY.find((h) => h.date === date);
+  const previous = [...HISTORY].sort((a, b) => a.date.localeCompare(b.date)).filter((h) => h.date < date).pop();
+  const computed = stored ?? dailyReading(items, now, { scores, anchors: indicators?.anchors, previous });
   const today = stored ? { ...stored, provisional: false } : { ...computed, provisional: true };
   const history = [...HISTORY.filter((h) => h.date !== today.date), today]
     .sort((a, b) => a.date.localeCompare(b.date))

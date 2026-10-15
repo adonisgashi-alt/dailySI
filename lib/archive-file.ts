@@ -81,7 +81,7 @@ export function fileStories(state: ArchiveState, stories: ArchivedStory[], loadD
         kept.length === found.reports.length
           ? found
           : // Reports now belong to another story: drop them, and the write-up based on them.
-            { ...found, reports: kept, outlets: [...new Set(kept.map((r) => r.outlet))], confidence: s.confidence, basis: s.basis, editorial: undefined };
+            { ...found, reports: kept, outlets: [...new Set(kept.map((r) => r.outlet))], confidence: s.confidence, basis: s.basis, editorial: undefined, risk: undefined };
       const next = merge(healed, s);
       if (JSON.stringify(next) === JSON.stringify(found)) {
         state.ids[s.id] = date!;

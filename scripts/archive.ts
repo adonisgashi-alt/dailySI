@@ -13,6 +13,7 @@ import { utcDate } from "../lib/risk.ts";
 import Anthropic from "@anthropic-ai/sdk";
 import { EDITOR_VERSION, writeEditorial } from "./editor.ts";
 import { pickPicture } from "./picture.ts";
+import { judgeRisk, RISK_VERSION } from "./risk-desk.ts";
 import { generatedArt } from "../lib/images.ts";
 
 // How many stories the AI desk writes per run, and how many top stories go to the bigger model.
@@ -74,6 +75,34 @@ if (process.env.ANTHROPIC_API_KEY) {
       }
     } catch (e) {
       console.error(`AI desk error (${(e as Error).message}); stopping for this run.`);
+      break;
+    }
+  }
+
+  // AI risk desk: what each story means for the meters. Small and cheap, so it
+  // also works through older stories still inside the meters' 7-day window.
+  let judged = 0;
+  const RISK_PER_RUN = Number(process.env.RISK_PER_RUN ?? 40);
+  const weekAgo = now - 7 * 8.64e7;
+  const pending = [
+    ...stories.map((s) => find(s.id)),
+    ...[...state.days.entries()].flatMap(([date, f]) => f.stories.filter((x) => x.lastUpdate > weekAgo).map((story) => ({ date, story }))),
+  ];
+  const seen = new Set<string>();
+  for (const { date, story } of pending) {
+    if (judged >= RISK_PER_RUN) break;
+    if (!story || seen.has(story.id) || (story.risk?.version ?? 0) >= RISK_VERSION) continue;
+    seen.add(story.id);
+    try {
+      const { risk, usage } = await judgeRisk(client, story);
+      if (!risk) continue;
+      story.risk = risk;
+      changed.add(date);
+      judged++;
+      const f = (v: typeof risk.replacement) => (v ? (v.score > 0 ? `+${v.score}` : `${v.score}`) : "n/a");
+      console.log(`Risk desk: ${usage} replace ${f(risk.replacement)} extinct ${f(risk.extinction)} | ${story.headline.slice(0, 60)}`);
+    } catch (e) {
+      console.error(`Risk desk error (${(e as Error).message}); stopping for this run.`);
       break;
     }
   }

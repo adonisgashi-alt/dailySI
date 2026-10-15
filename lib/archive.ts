@@ -11,6 +11,7 @@
 import type { Art } from "./images.ts";
 import type { DailyReading } from "./daily.ts";
 import type { Status } from "./desk.ts";
+import type { Anchor, MeterId, RiskScores } from "./risk.ts";
 
 export type ArchivedReport = { title: string; link: string; outlet: string; publishedAt: number; summary: string; primary: boolean };
 
@@ -41,6 +42,7 @@ export type ArchivedStory = {
   art: Art;
   reports: ArchivedReport[];
   editorial?: Editorial;
+  risk?: RiskScores; // the AI risk desk's verdict for the meters
 };
 
 export type ArchiveDay = { date: string; stories: ArchivedStory[] };
@@ -73,6 +75,26 @@ export const getArchiveDay = (date: string) =>
   /^\d{4}-\d{2}-\d{2}$/.test(date) ? readData<ArchiveDay>(`archive/days/${date}.json`, 600) : Promise.resolve(null);
 
 export const getRiskHistory = async () => readData<DailyReading[]>("risk-history.json", 900);
+
+export type Indicators = { updatedAt: number; anchors: Partial<Record<MeterId, Anchor>> };
+
+export const getIndicators = () => readData<Indicators>("indicators.json", 3600);
+
+/** What the AI desks added to recent stories: write-ups, checked pictures and risk verdicts, by story id and alias. */
+export async function getRecentDesk(days = 8) {
+  const editorials = new Map<string, Editorial>();
+  const pictures = new Map<string, Art>();
+  const scores = new Map<string, RiskScores>();
+  const files = await Promise.all((await getArchiveDays()).slice(0, days).map((d) => getArchiveDay(d.date)));
+  for (const f of files)
+    for (const s of f?.stories ?? [])
+      for (const id of [s.id, ...(s.aliases ?? [])]) {
+        if (s.editorial) editorials.set(id, s.editorial);
+        if (s.art?.picked) pictures.set(id, s.art);
+        if (s.risk) scores.set(id, s.risk);
+      }
+  return { editorials, pictures, scores };
+}
 
 export async function findArchived(id: string): Promise<ArchivedStory | null> {
   if (!/^[a-z0-9]{4,20}$/.test(id)) return null;

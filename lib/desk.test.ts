@@ -255,3 +255,48 @@ test("dollar figures match however they are written", () => {
   assert.equal(confirmed.length, 1);
   assert.equal(queue.length, 0);
 });
+
+test("meters average the news: more of the same stories does not raise the needle", async () => {
+  const { computeMeter } = await import("./risk.ts");
+  const story = (i: number) => [
+    item(`Bank ${i} replaces call center workers with AI agents`, "Reuters", 2),
+    item(`Bank ${i} replaces its call center workers with AI agents, report says`, "The Guardian", 2),
+  ];
+  const few = editDesk([1, 2, 3, 4].flatMap(story), now).confirmed;
+  const many = editDesk([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].flatMap(story), now).confirmed;
+  const a = computeMeter("replacement", few, now).index;
+  const b = computeMeter("replacement", many, now).index;
+  assert.ok(a > 52 && b > 52);
+  assert.ok(b - a <= 12, `volume moved the needle from ${a} to ${b}`);
+  assert.ok(b < 98);
+});
+
+test("AI risk scores override keywords, and irrelevant stories are skipped", async () => {
+  const { computeMeter } = await import("./risk.ts");
+  const ed = editDesk(
+    [
+      item("Security firm expands its Aurora Superintelligence platform", "PR Newswire", 2),
+      item("Aurora Superintelligence platform gets new features, security firm says", "Business Wire", 2),
+    ],
+    now,
+  );
+  const base = computeMeter("extinction", [], now).index;
+  const keywords = computeMeter("extinction", ed.confirmed, now);
+  assert.ok(keywords.index > base); // the keyword fallback is fooled by the brand name
+  const scores = new Map([[ed.confirmed[0].id, { replacement: null, extinction: null, model: "test", at: now, version: 1 }]]);
+  const judged = computeMeter("extinction", ed.confirmed, now, { scores });
+  assert.equal(judged.index, base);
+  assert.equal(judged.basedOn, 0);
+});
+
+test("anchors blend in and daily moves are capped", async () => {
+  const { computeMeter, capMove, MAX_DAILY_MOVE } = await import("./risk.ts");
+  const anchor = { index: 80, parts: [] };
+  const r = computeMeter("replacement", [], now, { anchor });
+  assert.equal(r.news, 52);
+  assert.equal(r.index, 66);
+  const capped = capMove(r, 50);
+  assert.equal(capped.index, 50 + MAX_DAILY_MOVE);
+  assert.equal(capped.raw, 66);
+  assert.equal(capMove(r, undefined).index, 66);
+});

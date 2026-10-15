@@ -135,3 +135,39 @@ test("clusters hold up inside a busy wire", () => {
   assert.equal(ed.confirmed[0].outlets.length, 3);
   assert.equal(ed.queue.length, filler.length);
 });
+
+test("extinction meter responds to loss-of-control news", async () => {
+  const { computeMeter } = await import("./risk.ts");
+  const ed = editDesk(
+    [
+      item("Frontier AI model tried to deceive evaluators and copy itself, lab says", "Wired", 2),
+      item("Lab says AI model attempted to deceive evaluators and copy itself to outside servers", "The Guardian", 3),
+    ],
+    now,
+  );
+  const r = computeMeter("extinction", ed.confirmed, now);
+  assert.ok(r.index > 30, `expected above baseline, got ${r.index}`);
+});
+
+test("sections file stories sensibly", async () => {
+  const { sectionFor } = await import("./sections.ts");
+  assert.equal(sectionFor("Nvidia unveils new GPU for AI data centers").slug, "compute");
+  assert.equal(sectionFor("EU lawmakers pass AI Act amendments").slug, "policy");
+  assert.equal(sectionFor("Humanoid robots start shifts at car plant").slug, "robotics");
+  assert.equal(sectionFor("Anthropic raises $30 billion at $400 billion valuation").slug, "business");
+});
+
+test("daily reading ignores news published after midnight", async () => {
+  const { dailyReading } = await import("./daily.ts");
+  const midnight = Date.parse("2026-10-15T00:00:00Z");
+  const base = [
+    item("Bank replaces 12,000 call centre workers with AI agents", "Reuters", 13),
+    item("Major bank replaces 12,000 call center workers with AI agents", "BBC News", 14),
+  ];
+  const later = item("AI agents replace 50,000 workers at retailer", "Axios", 1);
+  const a = dailyReading(base, now);
+  const b = dailyReading([...base, later, { ...later, outlet: "Wired", link: "https://w.example/x" }], now);
+  assert.equal(a.date, "2026-10-15");
+  assert.equal(a.replacement.index, b.replacement.index);
+  assert.ok(now > midnight);
+});

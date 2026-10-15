@@ -2,7 +2,7 @@
   "name": "dailysi",
   "version": "0.1.0",
   "private": true,
-  "description": "The Daily SI \u2014 verified news from the superintelligence frontier.",
+  "description": "Daily Super Intelligence: verified news from the superintelligence frontier.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

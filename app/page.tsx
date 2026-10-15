@@ -1,152 +1,149 @@
 import Link from "next/link";
-import { getEdition, WIRE_REFRESH } from "@/lib/news";
-import { editionDate, ago } from "@/lib/format";
-import { ArtFigure, StoryMeta, VerifiedBadge } from "@/components/StoryBits";
-import { RiskMeter } from "@/components/RiskMeter";
-import { Ticker } from "@/components/Ticker";
+import { getEdition, type EditionStory } from "@/lib/news";
+import { SECTIONS } from "@/lib/sections";
+import { SITE } from "@/lib/site";
+import { ArtFigure, SectionKicker, StoryMeta, clip } from "@/components/StoryBits";
+import { Meter, MeterNote } from "@/components/Meter";
+import { JsonLd } from "@/components/JsonLd";
+import { ago } from "@/lib/format";
 
-export const revalidate = 600; // keep in sync with WIRE_REFRESH
+export const revalidate = 600;
+
+function Package({ s, now, flip, lead }: { s: EditionStory; now: number; flip?: boolean; lead?: boolean }) {
+  const related = s.reports.filter((r) => r.title !== s.headline).slice(0, lead ? 3 : 2);
+  return (
+    <article className={`package${flip ? " flip" : ""}`}>
+      <div>
+        <SectionKicker section={s.section} />
+        <Link href={`/story/${s.id}`}>
+          <h2 className={lead ? "hl-xl" : "hl-l"}>{s.headline}</h2>
+        </Link>
+        {s.summary && <p className={`summary${lead ? " summary-l" : ""}`}>{clip(s.summary, lead ? 300 : 200)}</p>}
+        <StoryMeta story={s} now={now} />
+        {related.length > 0 && (
+          <ul className="related">
+            {related.map((r) => (
+              <li key={r.link}>
+                <span className="src">{r.outlet}</span>
+                <a href={r.link} target="_blank" rel="noopener noreferrer">{r.title}</a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <Link href={`/story/${s.id}`} tabIndex={-1} aria-hidden="true">
+        <ArtFigure art={s.art} caption priority={lead} />
+      </Link>
+    </article>
+  );
+}
+
+function Small({ s, now, image = true }: { s: EditionStory; now: number; image?: boolean }) {
+  return (
+    <article>
+      {image && <Link href={`/story/${s.id}`} tabIndex={-1} aria-hidden="true"><ArtFigure art={s.art} /></Link>}
+      <SectionKicker section={s.section} />
+      <Link href={`/story/${s.id}`}><h3 className="hl-m">{s.headline}</h3></Link>
+      {s.summary && <p className="summary">{clip(s.summary, 140)}</p>}
+      <StoryMeta story={s} now={now} />
+    </article>
+  );
+}
 
 export default async function FrontPage() {
   const ed = await getEdition();
   const now = ed.generatedAt;
-  const [lead, ...rest] = ed.stories;
-  const grid = rest.slice(0, 6);
-  const more = rest.slice(6, 24);
-  const online = ed.feeds.filter((f) => f.ok).length;
+  const stories = ed.stories;
+  const packages = stories.slice(0, 3);
+  const row = stories.slice(3, 6);
+  const shown = new Set([...packages, ...row].map((s) => s.id));
+  const mostCorroborated = [...stories].sort((a, b) => b.outlets.length - a.outlets.length || b.lastUpdate - a.lastUpdate).slice(0, 5);
+  const prev = ed.history.length > 1 ? ed.history[ed.history.length - 2] : undefined;
+  const bands = SECTIONS.map((sec) => ({ sec, list: stories.filter((s) => s.section.slug === sec.slug && !shown.has(s.id)).slice(0, 4) })).filter((b) => b.list.length > 0);
 
   return (
     <>
-      <header className="masthead">
-        <h1>
-          <Link href="/">Daily <span className="si">Super Intelligence</span></Link>
-        </h1>
-        <p className="tagline">“All the Superintelligence News That&apos;s Confirmed to Print”</p>
-        <div className="dateline">
-          <span>{editionDate(now)}</span>
-          <nav>
-            <Link href="/">Front Page</Link>
-            <Link href="/#wire">Verification Queue</Link>
-            <Link href="/about">Standards</Link>
-          </nav>
-          <span>Edition updated {new Date(now).toISOString().slice(11, 16)} UTC · refreshes every {WIRE_REFRESH / 60} min</span>
-        </div>
-      </header>
-
-      <Ticker stories={ed.stories} />
-
-      <main className="front">
-        <div>
-          {!lead ? (
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: SITE.name,
+          url: SITE.url,
+          description: SITE.description,
+          publisher: { "@type": "NewsMediaOrganization", name: SITE.name, url: SITE.url, logo: `${SITE.url}/icon.svg` },
+        }}
+      />
+      <h1 className="sr-only">{SITE.name}: today&apos;s confirmed superintelligence news</h1>
+      <div className="front">
+        <div className="main">
+          {packages.length === 0 ? (
             <div className="empty">
-              <h2 style={{ fontFamily: "var(--display)" }}>The wire is quiet.</h2>
-              <p>No story has passed verification in this edition yet. The desk re-checks every {WIRE_REFRESH / 60} minutes.</p>
+              <h2>The wire is quiet.</h2>
+              <p>No story has passed verification in this edition yet. The desk re-checks every 10 minutes.</p>
             </div>
           ) : (
             <>
-              <article className="lead">
-                <div>
-                  <div className="kicker">
-                    <span>Lead story</span>
-                    <VerifiedBadge story={lead} />
-                  </div>
-                  <h2><Link href={`/story/${lead.id}`}>{lead.headline}</Link></h2>
-                  {lead.summary && <p className="dek">{lead.summary}</p>}
-                  <StoryMeta story={lead} now={now} />
-                  <ul className="clean" style={{ marginTop: 14, fontFamily: "var(--sans)", fontSize: 14 }}>
-                    {lead.reports.filter((r) => r.title !== lead.headline).slice(0, 3).map((r) => (
-                      <li key={r.link} style={{ padding: "6px 0", borderTop: "1px solid var(--rule)" }}>
-                        <a href={r.link} target="_blank" rel="noopener noreferrer">
-                          <b style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--accent)", textTransform: "uppercase" }}>{r.outlet}</b> {r.title}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+              {packages.map((s, i) => <Package key={s.id} s={s} now={now} lead={i === 0} flip={i === 2} />)}
+              {row.length > 0 && (
+                <div className="cols cols-3">
+                  {row.map((s) => <Small key={s.id} s={s} now={now} />)}
                 </div>
-                <ArtFigure art={lead.art} />
-              </article>
-
-              <h2 className="section-head" style={{ marginTop: 26 }}>
-                <span>Top stories</span>
-                <small>each confirmed by independent or primary sources</small>
-              </h2>
-              <div className="grid">
-                {grid.map((s) => (
-                  <article key={s.id}>
-                    <Link href={`/story/${s.id}`}><ArtFigure art={s.art} caption={false} /></Link>
-                    <div className="kicker" style={{ marginTop: 10 }}><VerifiedBadge story={s} /></div>
-                    <h3><Link href={`/story/${s.id}`}>{s.headline}</Link></h3>
-                    {s.summary && <p>{s.summary.length > 180 ? s.summary.slice(0, s.summary.lastIndexOf(" ", 180)) + "…" : s.summary}</p>}
-                    <StoryMeta story={s} now={now} />
-                  </article>
-                ))}
-              </div>
-
-              {more.length > 0 && (
-                <>
-                  <h2 className="section-head" style={{ marginTop: 30 }}><span>More from the frontier</span><small>{more.length} stories</small></h2>
-                  <div className="list">
-                    {more.map((s) => (
-                      <article key={s.id}>
-                        <div>
-                          <div className="kicker"><VerifiedBadge story={s} /></div>
-                          <h3><Link href={`/story/${s.id}`}>{s.headline}</Link></h3>
-                          <StoryMeta story={s} now={now} />
-                        </div>
-                        <Link href={`/story/${s.id}`}><ArtFigure art={s.art} caption={false} /></Link>
-                      </article>
-                    ))}
-                  </div>
-                </>
               )}
             </>
           )}
         </div>
 
-        <aside>
-          <RiskMeter initial={ed.risk} />
+        <aside className="rail" aria-label="Risk meters and highlights">
+          <div>
+            <h2 className="rail-h"><span>Today&apos;s Risk Meters</span><small>updated daily</small></h2>
+            <Meter reading={ed.today.replacement} previous={prev?.replacement} history={ed.history.map((h) => h.replacement.index)} />
+            <Meter reading={ed.today.extinction} previous={prev?.extinction} history={ed.history.map((h) => h.extinction.index)} drivers={false} />
+            <MeterNote />
+          </div>
 
-          <section className="module" id="wire">
-            <h2 className="section-head"><span>Verification queue</span><small>not yet published</small></h2>
-            <p style={{ fontSize: 13, color: "var(--ink-3)", margin: "0 0 6px" }}>
-              Single-source reports. They post to the front page only once an independent outlet or primary source confirms them.
-            </p>
-            {ed.queue.length === 0 ? (
-              <p style={{ fontSize: 14 }}>Queue empty.</p>
-            ) : (
-              <ul className="clean queue">
-                {ed.queue.slice(0, 8).map((q) => (
-                  <li key={q.id}>
-                    <a href={q.reports[0].link} target="_blank" rel="noopener noreferrer">{q.headline}</a>
-                    <div className="meta">
-                      <span className="badge pending">◌ 1 source</span>
-                      <span>{q.outlets[0]}</span>
-                      <span>{ago(q.lastUpdate, now)}</span>
+          {mostCorroborated.length > 0 && (
+            <div>
+              <h2 className="rail-h"><span>Most Confirmed</span><small>by number of outlets</small></h2>
+              <ol className="numbered">
+                {mostCorroborated.map((s) => (
+                  <li key={s.id}>
+                    <div>
+                      <Link href={`/story/${s.id}`}><h3 className="hl-s">{s.headline}</h3></Link>
+                      <div className="meta"><span>{s.outlets.length} outlets</span><span>{ago(s.lastUpdate, now)}</span></div>
                     </div>
                   </li>
                 ))}
-              </ul>
-            )}
-          </section>
-
-          <section className="module">
-            <h2 className="section-head"><span>SI Wire status</span><small>{online}/{ed.feeds.length} online</small></h2>
-            <div className="console" role="status">
-              <div className="row"><span>reports scanned</span><span>{ed.scanned}</span></div>
-              <div className="row"><span>on-topic (SI/AGI/frontier)</span><span>{ed.relevant}</span></div>
-              <div className="row"><span>stories confirmed</span><span style={{ color: "var(--ok)" }}>{ed.stories.length}</span></div>
-              <div className="row"><span>held for verification</span><span style={{ color: "var(--warn)" }}>{ed.queue.length}</span></div>
-              <div style={{ borderTop: "1px dashed var(--rule)", margin: "8px 0 6px" }} />
-              {ed.feeds.map((f) => (
-                <div className="row" key={f.outlet}>
-                  <span><i className="dot" style={{ background: f.ok ? "var(--ok)" : "var(--danger)" }} />{f.outlet}</span>
-                  <span>{f.ok ? f.items : "offline"}</span>
-                </div>
-              ))}
+              </ol>
             </div>
-          </section>
+          )}
+
+          <div>
+            <h2 className="rail-h"><span>Awaiting Confirmation</span><small>{ed.queue.length} reports</small></h2>
+            <p className="note">Single-source reports. They reach the front page only after an independent outlet confirms them.</p>
+            <ul className="headlines">
+              {ed.queue.slice(0, 4).map((q) => (
+                <li key={q.id}>
+                  <a href={q.reports[0].link} target="_blank" rel="noopener noreferrer" className="hl-s" style={{ display: "block" }}>{q.headline}</a>
+                  <div className="meta"><span className="verified pending">◌ 1 source</span><span>{q.outlets[0]}</span></div>
+                </li>
+              ))}
+            </ul>
+            <Link href="/queue" className="btn" style={{ marginTop: 10 }}>See all reports awaiting confirmation</Link>
+          </div>
         </aside>
-      </main>
+      </div>
+
+      {bands.map(({ sec, list }) => (
+        <section className="band" key={sec.slug} aria-labelledby={`band-${sec.slug}`}>
+          <div className="band-head">
+            <h2 id={`band-${sec.slug}`}><Link href={`/section/${sec.slug}`}>{sec.name} ›</Link></h2>
+            <span>{sec.blurb}</span>
+          </div>
+          <div className="cols cols-4">
+            {list.map((s, i) => <Small key={s.id} s={s} now={now} image={i === 0 || list.length <= 2} />)}
+          </div>
+        </section>
+      ))}
     </>
   );
 }

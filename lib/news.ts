@@ -4,36 +4,45 @@ import path from "node:path";
 import { SOURCES, PRIMARY_OUTLETS, type Source } from "./sources.ts";
 import { parseFeed, type RawItem } from "./parse.ts";
 import { editDesk, type Story } from "./desk.ts";
-import { computeRisk, type RiskReading } from "./risk.ts";
+import { dailyReading, type DailyReading } from "./daily.ts";
 import { artFor, type Art } from "./images.ts";
+import { sectionFor, type Section } from "./sections.ts";
+import historyJson from "../data/risk-history.json";
 
 // How often the wire is re-read, in seconds. Pages built from it use the same.
 export const WIRE_REFRESH = 600;
 
 export type FeedStatus = { outlet: string; ok: boolean; items: number };
 
+export type EditionStory = Story & { art: Art; section: Section };
+
 export type Edition = {
-  stories: (Story & { art: Art })[];
+  stories: EditionStory[];
   queue: Story[];
-  risk: RiskReading;
+  today: DailyReading & { provisional: boolean };
+  history: DailyReading[];
   feeds: FeedStatus[];
   scanned: number;
   relevant: number;
   generatedAt: number;
 };
 
-async function readSource(src: Source): Promise<{ items: RawItem[]; ok: boolean }> {
-  // Offline development/testing: DAILYSI_FIXTURES=<dir> reads <dir>/<n>.xml.
+const HISTORY = historyJson as unknown as DailyReading[];
+
+export async function readSource(src: Source, index: number): Promise<{ items: RawItem[]; ok: boolean }> {
+  // Offline development/testing: DAILYSI_FIXTURES=<dir> reads <dir>/<index>.xml.
   const fixtures = process.env.DAILYSI_FIXTURES;
   try {
     let xml: string;
     if (fixtures) {
-      const idx = SOURCES.indexOf(src);
-      xml = await readFile(path.join(fixtures, `${idx}.xml`), "utf8").catch(() => "");
+      xml = await readFile(path.join(fixtures, `${index}.xml`), "utf8").catch(() => "");
       if (!xml) return { items: [], ok: false };
     } else {
       const res = await fetch(src.url, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; TheDailySI/1.0; +https://github.com/adonisgashi-alt/dailySI)", Accept: "application/rss+xml, application/atom+xml, application/xml, text/xml, */*" },
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; DailySuperIntelligence/1.0; +https://daily-si.com)",
+          Accept: "application/rss+xml, application/atom+xml, application/xml, text/xml, */*",
+        },
         next: { revalidate: WIRE_REFRESH },
         signal: AbortSignal.timeout(8000),
       });
@@ -48,11 +57,11 @@ async function readSource(src: Source): Promise<{ items: RawItem[]; ok: boolean 
 }
 
 export const getEdition = cache(async (): Promise<Edition> => {
-  const results = await Promise.all(SOURCES.map(readSource));
+  const results = await Promise.all(SOURCES.map((s, i) => readSource(s, i)));
   const items = results.flatMap((r) => r.items);
   const now = Date.now();
   const desk = editDesk(items, now);
-  const top = desk.confirmed.slice(0, 40);
+  const top = desk.confirmed.slice(0, 60);
   const art = await artFor(top);
 
   const feeds = new Map<string, FeedStatus>();
@@ -63,10 +72,25 @@ export const getEdition = cache(async (): Promise<Edition> => {
     feeds.set(s.outlet, f);
   });
 
+  // The meters publish once a day. Use the stored daily reading when the daily
+  // job has run; otherwise compute today's reading from news up to midnight UTC,
+  // which gives the same value all day.
+  const computed = dailyReading(items, now);
+  const stored = HISTORY.find((h) => h.date === computed.date);
+  const today = stored ? { ...stored, provisional: false } : { ...computed, provisional: true };
+  const history = [...HISTORY.filter((h) => h.date !== today.date), today]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(-90);
+
   return {
-    stories: top.map((s) => ({ ...s, art: art.get(s.id)! })),
-    queue: desk.queue.slice(0, 15),
-    risk: computeRisk(desk.confirmed, now),
+    stories: top.map((s) => ({
+      ...s,
+      art: art.get(s.id)!,
+      section: sectionFor(`${s.headline} ${s.headline} ${s.summary} ${s.reports.map((r) => r.title).join(" ")}`),
+    })),
+    queue: desk.queue.slice(0, 20),
+    today,
+    history,
     feeds: [...feeds.values()],
     scanned: desk.scanned,
     relevant: desk.relevant,

@@ -13,6 +13,7 @@ const TERMS: [RegExp, number][] = [
   [/\bAI (safety|alignment)|alignment research|misaligned|interpretability\b/i, 4],
   [/\bself-improv|recursive(ly)? improv|intelligence explosion|singularity\b/i, 4],
   [/\bfrontier (AI|model|lab)s?\b/i, 4],
+  [/\b(deceiv\w*|decepti\w*|scheming|sabotag\w*|blackmail\w*|cop(y|ies) itself|self-replicat\w*|loss of control|rogue AI|jailbreak\w*)\b/i, 3],
   [/\b(OpenAI|Anthropic|DeepMind|xAI|Mistral AI|Safe Superintelligence|SSI|Meta Superintelligence)\b/, 3],
   [/\b(ChatGPT|GPT-\d|Claude|Gemini|Grok|Llama \d|o\d model|DeepSeek|Qwen)\b/, 3],
   [/\b(large language model|LLMs?|foundation model|reasoning model)s?\b/i, 3],

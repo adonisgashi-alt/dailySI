@@ -33,3 +33,20 @@ export function dailyReading(items: RawItem[], now = Date.now(), inputs: DailyIn
     );
   return { date, replacement: meter("replacement"), extinction: meter("extinction") };
 }
+
+/**
+ * How much a meter moved over the past week, like a credit score's "up 4 pts".
+ * Compares the latest reading with the one 7 days earlier, or with the earliest
+ * reading under the current method if there isn't a week of them yet.
+ */
+export function weeklyChange(history: DailyReading[], id: MeterId): { delta: number; since: string } | null {
+  const h = [...history].sort((a, b) => a.date.localeCompare(b.date));
+  const now = h.at(-1);
+  if (!now) return null;
+  const weekAgo = new Date(Date.parse(now.date + "T00:00:00Z") - 7 * 8.64e7).toISOString().slice(0, 10);
+  // Readings from before the method change (no news component) aren't comparable.
+  const base = h.filter((r) => r.date >= weekAgo && r.date < now.date && r[id].news !== undefined)[0];
+  if (!base) return null;
+  const since = base.date === weekAgo ? "this week" : `since ${new Date(base.date + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`;
+  return { delta: now[id].index - base[id].index, since };
+}

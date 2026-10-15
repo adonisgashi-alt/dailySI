@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsenseClient}`} crossOrigin="anonymous" />
       </head>
       <body>
-        <Header generatedAt={ed.generatedAt} today={ed.today} />
+        <Header generatedAt={ed.generatedAt} today={ed.today} days={ed.history} />
         <main className="wrap">{children}</main>
         <Footer />
         {/* Google Analytics (GA4), loaded after the page so it never slows it down. */}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { METERS, type RiskReading } from "@/lib/risk";
+import { weeklyChange, type DailyReading } from "@/lib/daily";
 
 const BANDS = [
   { to: 25, color: "#2e9d6a" },
@@ -52,19 +53,31 @@ export function Sparkline({ values }: { values: number[] }) {
   );
 }
 
+/** "▲ 4 pts this week": up is red (more risk), down is green. */
+export function Change({ change, compact = false }: { change: { delta: number; since: string } | null; compact?: boolean }) {
+  if (!change) return null;
+  const { delta, since } = change;
+  const color = delta > 0 ? "var(--danger)" : delta < 0 ? "var(--ok)" : "var(--ink-3)";
+  const arrow = delta > 0 ? "▲" : delta < 0 ? "▼" : "—";
+  if (compact) return <span className="chg-mini" style={{ color }} title={`${delta > 0 ? "+" : ""}${delta} ${since}`}>{arrow}{delta !== 0 ? Math.abs(delta) : ""}</span>;
+  return (
+    <span className="chg" style={{ color }}>
+      {arrow} {Math.abs(delta)} pts <span className="since">{since}</span>
+    </span>
+  );
+}
+
 export function Meter({
   reading,
-  previous,
-  history = [],
+  days = [],
   drivers = true,
 }: {
   reading: RiskReading;
-  previous?: RiskReading;
-  history?: number[];
+  days?: DailyReading[];
   drivers?: boolean;
 }) {
   const def = METERS[reading.meter];
-  const chg = previous ? reading.index - previous.index : null;
+  const history = days.map((d) => d[reading.meter].index);
   return (
     <section className="meter" aria-labelledby={`m-${reading.meter}`}>
       <h3 id={`m-${reading.meter}`}>{def.name}</h3>
@@ -73,11 +86,7 @@ export function Meter({
       <div className="readout">
         <strong>{reading.index}</strong>
         <span style={{ color: bandColor(reading.index) }}>{reading.level}</span>
-        {chg !== null && (
-          <span className="chg" style={{ color: chg > 0 ? "var(--danger)" : chg < 0 ? "var(--ok)" : "var(--ink-3)" }}>
-            {chg > 0 ? `▲ ${chg}` : chg < 0 ? `▼ ${-chg}` : "— 0"} vs yesterday
-          </span>
-        )}
+        <Change change={weeklyChange(days, reading.meter)} />
       </div>
       {history.length > 1 && <Sparkline values={history} />}
       {drivers && reading.drivers.length > 0 && (

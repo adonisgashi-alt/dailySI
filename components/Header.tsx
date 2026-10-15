@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { editionDate } from "@/lib/format";
-import { bandColor } from "@/components/Meter";
+import { bandColor, Change } from "@/components/Meter";
 import { SectionNav } from "@/components/SectionNav";
-import type { DailyReading } from "@/lib/daily";
+import { weeklyChange, type DailyReading } from "@/lib/daily";
 
-export function Header({ generatedAt, today }: { generatedAt: number; today: DailyReading }) {
+export function Header({ generatedAt, today, days = [] }: { generatedAt: number; today: DailyReading; days?: DailyReading[] }) {
   return (
     <header className="wrap site-header">
       <div className="utility">
@@ -16,9 +16,11 @@ export function Header({ generatedAt, today }: { generatedAt: number; today: Dai
         <Link href="/risk" className="readings" title="Today's risk meters, updated daily">
           <span>
             AI replacing humans <b style={{ color: bandColor(today.replacement.index) }}>{today.replacement.index}</b>
+            <Change change={weeklyChange(days, "replacement")} compact />
           </span>
           <span>
             AI extinction risk <b style={{ color: bandColor(today.extinction.index) }}>{today.extinction.index}</b>
+            <Change change={weeklyChange(days, "extinction")} compact />
           </span>
         </Link>
       </div>

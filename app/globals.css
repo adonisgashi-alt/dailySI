@@ -165,7 +165,9 @@ figcaption a { text-decoration: underline; text-underline-offset: 2px; }
 .readout { display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-top: -4px; }
 .readout strong { font-family: var(--mono); font-size: 34px; font-weight: 600; letter-spacing: -0.02em; }
 .readout span { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.readout .chg { font-family: var(--mono); font-size: 12px; font-weight: 400; letter-spacing: 0; text-transform: none; }
+.readout .chg { font-family: var(--mono); font-size: 12.5px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.readout .chg .since { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink-3); }
+.chg-mini { font-family: var(--mono); font-size: 10.5px; font-weight: 600; margin-left: 3px; }
 .meter .foot { font-size: 11.5px; color: var(--ink-3); text-align: center; margin: 2px 0 0; }
 .spark { display: block; width: 100%; height: 34px; margin-top: 6px; }
 .drivers { list-style: none; padding: 0; margin: 10px 0 0; font-size: 13px; }

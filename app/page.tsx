@@ -59,7 +59,6 @@ export default async function FrontPage() {
   const row = stories.slice(3, 6);
   const shown = new Set([...packages, ...row].map((s) => s.id));
   const mostCorroborated = [...stories].sort((a, b) => b.outlets.length - a.outlets.length || b.lastUpdate - a.lastUpdate).slice(0, 5);
-  const prev = ed.history.length > 1 ? ed.history[ed.history.length - 2] : undefined;
   const bands = SECTIONS.map((sec) => ({ sec, list: stories.filter((s) => s.section.slug === sec.slug && !shown.has(s.id)).slice(0, 4) })).filter((b) => b.list.length > 0);
 
   return (
@@ -97,8 +96,8 @@ export default async function FrontPage() {
         <aside className="rail" aria-label="Risk meters and highlights">
           <div>
             <h2 className="rail-h"><span>Today&apos;s Risk Meters</span><small>updated daily</small></h2>
-            <Meter reading={ed.today.replacement} previous={prev?.replacement} history={ed.history.map((h) => h.replacement.index)} />
-            <Meter reading={ed.today.extinction} previous={prev?.extinction} history={ed.history.map((h) => h.extinction.index)} drivers={false} />
+            <Meter reading={ed.today.replacement} days={ed.history} />
+            <Meter reading={ed.today.extinction} days={ed.history} drivers={false} />
             <MeterNote />
           </div>
 

@@ -309,3 +309,12 @@ test("the first reading after the method change is not capped by an old-style re
   const fresh = { date: "2026-10-14", replacement: { index: 90, news: 80 }, extinction: { index: 90, news: 80 } } as never;
   assert.equal(dailyReading([], now, { previous: fresh }).replacement.index, 87);
 });
+
+test("weekly change compares with a week ago, or the first comparable reading", async () => {
+  const { weeklyChange } = await import("./daily.ts");
+  const day = (date: string, i: number, news = true) =>
+    ({ date, replacement: { index: i, ...(news && { news: i }) }, extinction: { index: i, ...(news && { news: i }) } }) as never;
+  assert.equal(weeklyChange([day("2026-10-15", 70, false), day("2026-10-16", 64)], "replacement"), null);
+  assert.deepEqual(weeklyChange([day("2026-10-15", 70, false), day("2026-10-16", 64), day("2026-10-18", 60)], "replacement"), { delta: -4, since: "since Oct 16" });
+  assert.deepEqual(weeklyChange([day("2026-10-16", 64), day("2026-10-20", 66), day("2026-10-23", 68)], "extinction"), { delta: 4, since: "this week" });
+});

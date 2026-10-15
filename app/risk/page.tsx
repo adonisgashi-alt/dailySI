@@ -15,7 +15,6 @@ export const metadata: Metadata = {
 
 export default async function RiskPage() {
   const ed = await getEdition();
-  const prev = ed.history.length > 1 ? ed.history[ed.history.length - 2] : undefined;
   const ids: MeterId[] = ["replacement", "extinction"];
   return (
     <div className="page">
@@ -31,7 +30,7 @@ export default async function RiskPage() {
         const def = METERS[id];
         return (
           <section key={id} style={{ marginBottom: 34 }}>
-            <Meter reading={r} previous={prev?.[id]} history={ed.history.map((h) => h[id].index)} drivers />
+            <Meter reading={r} days={ed.history} drivers />
             <h2 className="hl-m" style={{ marginTop: 18 }}>How today&apos;s reading is built</h2>
             <ul className="drivers">
               <li>

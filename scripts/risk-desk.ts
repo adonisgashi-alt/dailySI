@@ -12,16 +12,17 @@ import { METERS, type MeterId, type RiskScores, type StoryRisk } from "../lib/ri
 import { BULK_MODEL } from "./editor.ts";
 
 // Bump when the prompt changes so stories are judged again.
-export const RISK_VERSION = 1;
+export const RISK_VERSION = 2;
 
 const categories = (id: MeterId) => [...new Set([...METERS[id].pressure, ...METERS[id].relief].map((s) => s.label)), "Other"];
 
 const verdict = (id: MeterId) =>
   z.object({
-    relevant: z.boolean().describe(`Does this event bear on the question at all? ${METERS[id].question.replace("this week's confirmed news", "this event")}`),
-    score: z.number().describe("-2 strong evidence against the risk, -1 some evidence against, 0 relevant but neutral, +1 some evidence for, +2 strong evidence for. Use 0 if not relevant."),
-    category: z.string().describe(`The signal this event is mainly about. Exactly one of: ${categories(id).join("; ")}.`),
     reason: z.string().describe("One short sentence (max 20 words) explaining the score, in plain language."),
+    relevant: z.boolean().describe(`Does this event bear on the question at all? ${METERS[id].question.replace("this week's confirmed news", "this event")}`),
+    effect: z.string().describe('Exactly one of: "raises the risk", "lowers the risk", "no clear effect". Raises = the event makes the outcome in the question more likely.'),
+    strength: z.string().describe('Exactly one of: "slight", "strong". Use "strong" only for clear, significant evidence.'),
+    category: z.string().describe(`The signal this event is mainly about. Exactly one of: ${categories(id).join("; ")}.`),
   });
 
 const Schema = z.object({ replacement: verdict("replacement"), extinction: verdict("extinction") });
@@ -33,13 +34,16 @@ const SYSTEM = `You are the risk desk of Daily Super Intelligence. For one news 
 
 Rules:
 - Judge the substance of the event, not the words in the headline. A product named "superintelligence", a stock move, a lawsuit about privacy, a funding round or a gadget launch is usually not relevant (relevant=false, score 0).
-- Most events are 0 or +/-1. Use +/-2 only for clear, significant evidence.
+- "raises the risk" means the event makes the bad outcome (mass replacement of human work, or an AI catastrophe) MORE likely. "lowers the risk" means LESS likely.
+- Most events are "slight". Use "strong" only for clear, significant evidence.
 - Base your judgement only on what the reports say.`;
 
 function toRisk(id: MeterId, v: z.infer<ReturnType<typeof verdict>>): StoryRisk | null {
   if (!v.relevant) return null;
   const category = categories(id).find((c) => c.toLowerCase() === v.category.trim().toLowerCase()) ?? "Other";
-  return { score: Math.max(-2, Math.min(2, Math.round(v.score))), category, reason: v.reason.trim() };
+  const effect = v.effect.toLowerCase();
+  const sign = effect.includes("raise") ? 1 : effect.includes("lower") ? -1 : 0;
+  return { score: sign * (/strong/i.test(v.strength) ? 2 : 1), category, reason: v.reason.trim() };
 }
 
 export async function judgeRisk(client: Anthropic, story: ArchivedStory): Promise<{ risk: RiskScores | null; usage: string }> {

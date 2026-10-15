@@ -32,7 +32,7 @@ const TERMS: [RegExp, number][] = [
 ];
 
 // Things that mention AI but are not frontier-AI news.
-const NOISE = /\b(deal of the day|discount|coupon|best .* to buy|gift guide|review:|hands-on:|podcast|newsletter|sponsored|webinar|horoscope)\b/i;
+const NOISE = /\b(deal of the day|discount|coupon|best .* to buy|gift guide|review:|hands-on:|podcast|newsletter|sponsored|webinar|horoscope|alamos gold|stock price, news, quote|NYSE:AGI|AGI\.TO|AGI Greenpac)\b/i;
 
 export function relevance(item: Pick<RawItem, "title" | "summary">): number {
   const text = `${item.title} ${item.title} ${item.summary}`; // title counts double
@@ -55,7 +55,11 @@ const STOP = new Set(
 // Names and beat words that appear across many unrelated stories. Sharing them
 // is not evidence that two headlines describe the same event.
 const GENERIC = new Set(
-  "openai chatgpt anthropic claude google deepmind gemini meta microsoft copilot nvidia apple amazon xai grok musk altman ai a.i artificial intelligence model llm agi chatbot tech company firm report startup user people new us uk eu china".split(
+  // Companies and topic words that run through many different stories this beat
+  // covers ("safety concerns" is in half the headlines on a busy day).
+  ("openai chatgpt anthropic claude google deepmind gemini meta microsoft copilot nvidia apple amazon xai grok musk altman ai a.i artificial intelligence model llm agi chatbot tech company firm report startup user people new us uk eu china " +
+    "safety safe concern risk issue claim failure crisis security governance say stock share market investor " +
+    "agent agentic frontier access come back give own make get").split(
     " ",
   ),
 );
@@ -164,6 +168,13 @@ export function cluster(reports: Report[]): Report[][] {
         }
       });
     });
+    // In a big group, matching one member isn't enough: that is how unrelated
+    // stories chain together through a single in-between headline.
+    if (best >= 0 && clusters[best].members.length >= 4) {
+      const c = clusters[best];
+      const close = c.members.filter((m, mi) => Math.abs(m.publishedAt - r.publishedAt) <= WINDOW_MS && pairScore(a, c.sets[mi], 1) >= 0.5).length;
+      if (close < 2) best = -1;
+    }
     if (best >= 0 && bestScore >= 0.5) {
       clusters[best].members.push(r);
       clusters[best].sets.push(a);
@@ -177,16 +188,29 @@ export function cluster(reports: Report[]): Report[][] {
   // sue OpenAI, claiming ChatGPT harms young users"). Two specific headlines must
   // match closely; a big group's combined vocabulary is never compared, since it
   // overlaps with almost any story about the same company.
-  const near = (x: (typeof clusters)[number], y: (typeof clusters)[number]) =>
-    x.members.some((m, i) =>
-      y.members.some(
-        (o, j) =>
-          Math.abs(m.publishedAt - o.publishedAt) <= WINDOW_MS &&
-          // Three or more event-specific shared words (e.g. "states", "sue", "harm")
-          // are strong evidence on their own, so the score bar can be lower.
-          (pairScore(x.sets[i], y.sets[j], 3) >= 0.4 || pairScore(x.sets[i], y.sets[j], 2) >= 0.5),
-      ),
-    );
+  const linked = (x: (typeof clusters)[number], i: number, y: (typeof clusters)[number], j: number) =>
+    Math.abs(x.members[i].publishedAt - y.members[j].publishedAt) <= WINDOW_MS &&
+    // Three or more event-specific shared words (e.g. "states", "sue", "harm")
+    // are strong evidence on their own, so the score bar can be lower.
+    (pairScore(x.sets[i], y.sets[j], 3) >= 0.4 || pairScore(x.sets[i], y.sets[j], 2) >= 0.5);
+  // Two groups merge on more than one link, unless one is a single headline: a lone
+  // in-between headline ("Stocks fall as Anthropic revenue and TSMC profit...")
+  // must not join two different stories.
+  const near = (x: (typeof clusters)[number], y: (typeof clusters)[number]) => {
+    const need = Math.min(2, x.members.length, y.members.length);
+    let links = 0;
+    const xs = new Set<number>();
+    const ys = new Set<number>();
+    for (let i = 0; i < x.members.length; i++)
+      for (let j = 0; j < y.members.length; j++)
+        if (linked(x, i, y, j)) {
+          links++;
+          xs.add(i);
+          ys.add(j);
+          if (xs.size >= need && ys.size >= need) return true;
+        }
+    return false;
+  };
   for (let merged = true; merged; ) {
     merged = false;
     outer: for (let i = 0; i < clusters.length; i++)

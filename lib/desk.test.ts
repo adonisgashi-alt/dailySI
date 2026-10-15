@@ -318,3 +318,22 @@ test("weekly change compares with a week ago, or the first comparable reading", 
   assert.deepEqual(weeklyChange([day("2026-10-15", 70, false), day("2026-10-16", 64), day("2026-10-18", 60)], "replacement"), { delta: -4, since: "since Oct 16" });
   assert.deepEqual(weeklyChange([day("2026-10-16", 64), day("2026-10-20", 66), day("2026-10-23", 68)], "extinction"), { delta: 4, since: "this week" });
 });
+
+test("different stories that share 'OpenAI, Anthropic, safety concerns' stay apart (real headlines)", async () => {
+  const { cluster } = await import("./desk.ts");
+  const { readFileSync } = await import("node:fs");
+  const raw = JSON.parse(readFileSync(new URL("./fixtures-merge.json", import.meta.url), "utf8")) as RawItem[];
+  const groups = cluster(raw.map((r) => ({ ...r, summary: "", primary: false, tokens: tokens(r.title), relevance: 5 })));
+  const find = (re: RegExp) => groups.filter((g) => g.some((r) => re.test(r.title)));
+  for (const re of [/FTC Subpoenas/, /Comptroller/, /8 States|Eight States/i, /Gemini 4 Argon/, /Muse Wonder/]) assert.equal(find(re).length, 1, `${re} split across groups`);
+  const of = (re: RegExp) => find(re)[0];
+  assert.notEqual(of(/FTC Subpoenas/), of(/Comptroller/));
+  assert.notEqual(of(/FTC Subpoenas/), of(/8 States/i));
+  assert.notEqual(of(/Comptroller/), of(/8 States/i));
+  assert.notEqual(of(/Gemini 4 Argon/), of(/Muse Wonder/));
+  assert.ok(of(/8 States/i).length >= 8);
+});
+
+test("a gold miner's AGI ticker is not AGI news", () => {
+  assert.equal(relevance({ title: "Alamos Gold Inc. (AGI) stock price, news, quote and history", summary: "" }), 0);
+});

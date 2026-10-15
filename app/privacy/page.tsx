@@ -19,6 +19,14 @@ export default function Privacy() {
         (Vercel) processes standard request data such as IP addresses and browser type to deliver and secure the site.
       </p>
 
+      <h2>Analytics</h2>
+      <p>
+        We use Google Analytics to understand how many people visit and which pages they read. It sets cookies and collects data such as
+        pages viewed, approximate location, and device and browser type. We do not use it to identify you. Learn more in{" "}
+        <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">how Google uses information from sites that use its services</a>,
+        or opt out with the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">Google Analytics opt-out add-on</a>.
+      </p>
+
       <h2>Advertising and cookies</h2>
       <p>
         We use Google AdSense to show ads. Google and its partners use cookies to serve ads based on your visits to this and other

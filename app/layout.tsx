@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { fontVariables } from "./fonts";
 import { Header } from "@/components/Header";
@@ -33,6 +34,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Header generatedAt={ed.generatedAt} today={ed.today} />
         <main className="wrap">{children}</main>
         <Footer />
+        {/* Google Analytics (GA4), loaded after the page so it never slows it down. */}
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${SITE.analyticsId}`} strategy="afterInteractive" />
+        <Script id="ga4" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${SITE.analyticsId}');`}
+        </Script>
       </body>
     </html>
   );

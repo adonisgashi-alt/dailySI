@@ -11,3 +11,13 @@ test("sentences about the sourcing are removed, the news stays", () => {
   );
   assert.equal(stripMeta("Sanders called for a ban, The Hill reported."), "Sanders called for a ban, The Hill reported.");
 });
+
+test("other phrasings about the sourcing are removed too", () => {
+  for (const s of [
+    "Specifics of that link are not available from the material provided.",
+    "EnergyNow ran a perspective piece headlined that Hinton warns of superintelligence.",
+    "No other outlets' coverage was available to compare against.",
+    "The same headline appeared in both outlets, so the reports do not conflict.",
+  ])
+    assert.equal(stripMeta(s), "", s);
+});

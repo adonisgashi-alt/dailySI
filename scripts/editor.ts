@@ -9,7 +9,7 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import type { ArchivedStory, Editorial } from "../lib/archive.ts";
 
 // Bump when the prompt changes so existing write-ups are rewritten.
-export const EDITOR_VERSION = 3;
+export const EDITOR_VERSION = 4;
 
 export const TOP_MODEL = "claude-sonnet-5-5";
 export const BULK_MODEL = "claude-haiku-5-5";
@@ -37,7 +37,7 @@ Rules:
 // Sentences that describe the sourcing instead of the news. Removed after writing,
 // whatever the prompt says, so they never reach readers.
 const META =
-  /\b(headlines?|snippets?|material available|available (reports|material|information|coverage)|reports? (provided|available)|this desk|(does|do|did) not (say|specify|detail|describe|include|give|mention|explain|state)|no (further|other|additional) detail|not (described|detailed|specified|clear)|unclear|it is not known|UTC)\b/i;
+  /\b(headlin\w*|snippets?|material (available|provided)|available (reports|material|information|coverage)|not available|as provided|reports? (provided|available)|this desk|(does|do|did) not (say|specify|detail|describe|include|give|mention|explain|state|conflict)|no (further|other|additional) (detail|details|outlets?|coverage)|not (described|detailed|specified|clear)|unclear|it is not known|UTC)\b/i;
 
 export function stripMeta(text: string): string {
   const paras = text.split(/\n\s*\n/).map((p) =>
@@ -70,11 +70,16 @@ export async function writeEditorial(client: Anthropic, story: ArchivedStory, to
   const usage = `${response.model} in=${response.usage.input_tokens} out=${response.usage.output_tokens}`;
   if (response.stop_reason === "refusal" || !response.parsed_output) return { editorial: null, usage };
   const o = response.parsed_output;
+  const keyFacts = o.key_facts.map((f) => stripMeta(f.trim())).filter(Boolean).slice(0, 4);
+  // If nothing but notes about the sources survives, tell the news through the key facts instead.
+  let summary = stripMeta(o.summary.trim());
+  if (summary.split(/\s+/).filter(Boolean).length < 20) summary = keyFacts.join(" ");
+  if (!summary) return { editorial: null, usage };
   return {
     editorial: {
-      summary: stripMeta(o.summary.trim()) || o.summary.trim(),
+      summary,
       whyItMatters: stripMeta(o.why_it_matters.trim()),
-      keyFacts: o.key_facts.map((f) => stripMeta(f.trim())).filter(Boolean).slice(0, 4),
+      keyFacts,
       sourcesAgree: o.sources_agree,
       note: o.note.trim(),
       model: response.model,

@@ -15,7 +15,6 @@ export function Header({ generatedAt, today }: { generatedAt: number; today: Dai
         </div>
         <div className="masthead">
           <Link href="/" aria-label={`${SITE.name} home`}>Daily Super Intelligence</Link>
-          <p>&ldquo;{SITE.tagline}&rdquo;</p>
         </div>
         <div className="right">
           <Link href="/risk" className="mini-meter" title="AI Replacing Humans Risk, updated daily">

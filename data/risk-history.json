@@ -1,1 +1,131 @@
-[]
+[
+ {
+  "date": "2026-10-15",
+  "replacement": {
+   "meter": "replacement",
+   "index": 70,
+   "level": "High",
+   "pressure": 34,
+   "relief": 17,
+   "drivers": [
+    {
+     "label": "AGI / ASI progress",
+     "delta": 11.168284846107618,
+     "storyId": "1rej6oq1anqb",
+     "headline": "Meta Stock Climbs As Zuckerberg Touts Muse Wonder As Frontier AI Model"
+    },
+    {
+     "label": "Regulation & oversight",
+     "delta": -4.829844151833626,
+     "storyId": "1g3v1c81vahq",
+     "headline": "From Bank Back Offices to Power Grids, Frontier AI Labs Push Deeper Into the Enterprise"
+    },
+    {
+     "label": "AGI / ASI progress",
+     "delta": 4.530868928198189,
+     "storyId": "5u6qqao6nlmk",
+     "headline": "SoftBank CEO Masayoshi Son: Superintelligence, AI Investing, and the Future of Robotics"
+    },
+    {
+     "label": "Worker pushback",
+     "delta": -3.9885349808159143,
+     "storyId": "1ov80pa7tmj7",
+     "headline": "Eight US states sue OpenAI, claiming ChatGPT harms young users"
+    },
+    {
+     "label": "AGI / ASI progress",
+     "delta": 3.6376180418621447,
+     "storyId": "1xqpo13alyqs",
+     "headline": "‘Godfather Of AI’ Geoffrey Hinton Rips Into Trump Over Artificial Intelligence"
+    }
+   ],
+   "components": [
+    {
+     "label": "AGI / ASI progress",
+     "value": 23.9
+    },
+    {
+     "label": "Autonomous agents",
+     "value": 9.1
+    },
+    {
+     "label": "Regulation & oversight",
+     "value": -8
+    },
+    {
+     "label": "Worker pushback",
+     "value": -6
+    },
+    {
+     "label": "Capability releases",
+     "value": 3.7
+    },
+    {
+     "label": "Capability limits",
+     "value": -3.5
+    },
+    {
+     "label": "Safety measures",
+     "value": -2.5
+    }
+   ],
+   "basedOn": 30,
+   "computedAt": 1792022400000
+  },
+  "extinction": {
+   "meter": "extinction",
+   "index": 56,
+   "level": "Elevated",
+   "pressure": 22,
+   "relief": 6,
+   "drivers": [
+    {
+     "label": "AGI / ASI progress",
+     "delta": 7.445523230738411,
+     "storyId": "1rej6oq1anqb",
+     "headline": "Meta Stock Climbs As Zuckerberg Touts Muse Wonder As Frontier AI Model"
+    },
+    {
+     "label": "AGI / ASI progress",
+     "delta": 4.530868928198189,
+     "storyId": "5u6qqao6nlmk",
+     "headline": "SoftBank CEO Masayoshi Son: Superintelligence, AI Investing, and the Future of Robotics"
+    },
+    {
+     "label": "AGI / ASI progress",
+     "delta": 3.6376180418621447,
+     "storyId": "1xqpo13alyqs",
+     "headline": "‘Godfather Of AI’ Geoffrey Hinton Rips Into Trump Over Artificial Intelligence"
+    },
+    {
+     "label": "Capability limits",
+     "delta": -3.465339351626138,
+     "storyId": "6a05zuidlwma",
+     "headline": "Europe’s leaders abandon the race for frontier AI"
+    },
+    {
+     "label": "AGI / ASI progress",
+     "delta": 3.44929327116056,
+     "storyId": "1odjgqaapk2i",
+     "headline": "Arctic Wolf Expands the Aurora Superintelligence Platform to Deliver AI Visibility, Broader Security Coverage, and New Generative Assistant Skills"
+    }
+   ],
+   "components": [
+    {
+     "label": "AGI / ASI progress",
+     "value": 23.9
+    },
+    {
+     "label": "International coordination",
+     "value": -4.2
+    },
+    {
+     "label": "Capability limits",
+     "value": -3.5
+    }
+   ],
+   "basedOn": 30,
+   "computedAt": 1792022400000
+  }
+ }
+]

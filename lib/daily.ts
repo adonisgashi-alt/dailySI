@@ -25,7 +25,11 @@ export function dailyReading(items: RawItem[], now = Date.now(), inputs: DailyIn
   );
   const date = utcDate(now);
   const prev = inputs.previous && inputs.previous.date < date ? inputs.previous : undefined;
+  // Readings from before the method change (no news component) don't limit the first new one.
   const meter = (id: MeterId) =>
-    capMove(computeMeter(id, desk.confirmed, cut, { scores: inputs.scores, anchor: inputs.anchors?.[id] }), prev?.[id].index);
+    capMove(
+      computeMeter(id, desk.confirmed, cut, { scores: inputs.scores, anchor: inputs.anchors?.[id] }),
+      prev?.[id].news !== undefined ? prev[id].index : undefined,
+    );
   return { date, replacement: meter("replacement"), extinction: meter("extinction") };
 }

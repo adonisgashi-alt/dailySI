@@ -300,3 +300,12 @@ test("anchors blend in and daily moves are capped", async () => {
   assert.equal(capped.raw, 66);
   assert.equal(capMove(r, undefined).index, 66);
 });
+
+test("the first reading after the method change is not capped by an old-style reading", async () => {
+  const { dailyReading } = await import("./daily.ts");
+  const old = { date: "2026-10-14", replacement: { index: 90 }, extinction: { index: 90 } } as never;
+  const r = dailyReading([], now, { previous: old });
+  assert.equal(r.replacement.index, 52);
+  const fresh = { date: "2026-10-14", replacement: { index: 90, news: 80 }, extinction: { index: 90, news: 80 } } as never;
+  assert.equal(dailyReading([], now, { previous: fresh }).replacement.index, 87);
+});

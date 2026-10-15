@@ -121,6 +121,13 @@ export default async function RiskPage() {
           we have it, slow-moving public indicators make up half of the reading. Finally, a meter moves at most 3 points a day.
         </p>
         <p>
+          <b>Public data.</b> AI replacing humans: Indeed job postings for software development, customer service and administrative
+          work compared with all postings since February 2020 (via FRED), and the pace of notable AI model releases by companies (Epoch
+          AI). AI extinction risk: the pace of model releases and the rate of reported AI incidents (AI Incident Database). Each is
+          scored so that &quot;no change&quot; sits at the meter&apos;s baseline. The method changed on 16 October 2026; earlier
+          readings counted keywords in headlines.
+        </p>
+        <p>
           <b>AI Replacing Humans Risk</b> (news baseline 52). Evidence for: workers being replaced, AI-linked layoffs, automation, autonomous
           agents, superhuman results, self-improving systems, humanoid robots. Evidence against: regulation, safety measures, job creation and
           augmentation, documented capability limits, worker pushback.

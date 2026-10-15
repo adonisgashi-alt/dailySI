@@ -240,3 +240,18 @@ test("the same outlet under slightly different names counts once", async () => {
   );
   assert.equal(ed.confirmed.length, 0); // one outlet twice is not independent confirmation
 });
+
+test("frontier-lab business news is on the beat", () => {
+  assert.ok(relevance({ title: "Anthropic Says Revenue Jumped 45% to $16.8 Billion in Third Quarter", summary: "" }) >= 4);
+  assert.ok(relevance({ title: "FTC subpoenas OpenAI and Anthropic over chatbot safety", summary: "" }) >= 4);
+});
+
+test("dollar figures match however they are written", () => {
+  assert.deepEqual(tokens("$16.8B").slice(0, 2), tokens("16.8 billion").slice(0, 2));
+  const { confirmed, queue } = editDesk(
+    [item("Anthropic Revenue Hits $16.8B", "Bloomberg", 2), item("Anthropic Revenue Hits $16.8 Billion in Q3", "Yahoo Finance", 1)],
+    now,
+  );
+  assert.equal(confirmed.length, 1);
+  assert.equal(queue.length, 0);
+});

@@ -23,18 +23,20 @@ export const SOURCES: Source[] = [
   { outlet: "BBC News", url: "https://feeds.bbci.co.uk/news/technology/rss.xml" },
   { outlet: "The Register", url: "https://www.theregister.com/software/ai_ml/headlines.atom" },
   { outlet: "IEEE Spectrum", url: "https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss" },
-  { outlet: "Axios", url: "https://api.axios.com/feed/technology" },
   // Aggregated search across thousands of outlets; each item is attributed to
   // its real publisher (see `source` element), so it still corroborates properly.
   { outlet: "Google News", url: "https://news.google.com/rss/search?q=superintelligence+OR+AGI+OR+%22frontier+AI%22+when:3d&hl=en-US&gl=US&ceid=US:en" },
   { outlet: "Google News", url: "https://news.google.com/rss/search?q=OpenAI+OR+Anthropic+OR+DeepMind+OR+%22AI+safety%22+when:2d&hl=en-US&gl=US&ceid=US:en" },
   { outlet: "Google News", url: "https://news.google.com/rss/search?q=%22AI%22+jobs+automation+replace+workers+when:3d&hl=en-US&gl=US&ceid=US:en" },
+  { outlet: "Google News", url: "https://news.google.com/rss/search?q=%22AI+safety%22+OR+%22AI+regulation%22+OR+%22AI+risk%22+OR+%22AI+Act%22+when:2d&hl=en-US&gl=US&ceid=US:en" },
+  { outlet: "Google News", url: "https://news.google.com/rss/search?q=xAI+OR+%22Meta+AI%22+OR+Mistral+OR+DeepSeek+OR+Gemini+OR+Claude+when:2d&hl=en-US&gl=US&ceid=US:en" },
+  { outlet: "Google News", url: "https://news.google.com/rss/search?q=Nvidia+OR+TSMC+OR+%22AI+chips%22+OR+%22AI+data+center%22+when:2d&hl=en-US&gl=US&ceid=US:en" },
+  { outlet: "Google News", url: "https://news.google.com/rss/search?q=%22humanoid+robot%22+OR+%22AI+agents%22+when:3d&hl=en-US&gl=US&ceid=US:en" },
 
   // Primary sources
   { outlet: "OpenAI", url: "https://openai.com/news/rss.xml", primary: true },
   { outlet: "Google DeepMind", url: "https://deepmind.google/blog/rss.xml", primary: true },
   { outlet: "Google AI", url: "https://blog.google/technology/ai/rss/", primary: true },
-  { outlet: "Microsoft AI", url: "https://blogs.microsoft.com/ai/feed/", primary: true },
   { outlet: "NVIDIA", url: "https://blogs.nvidia.com/feed/", primary: true },
   { outlet: "Hugging Face", url: "https://huggingface.co/blog/feed.xml", primary: true },
 ];

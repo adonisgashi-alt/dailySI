@@ -14,13 +14,16 @@ const TERMS: [RegExp, number][] = [
   [/\bself-improv|recursive(ly)? improv|intelligence explosion|singularity\b/i, 4],
   [/\bfrontier (AI|model|lab)s?\b/i, 4],
   [/\b(deceiv\w*|decepti\w*|scheming|sabotag\w*|blackmail\w*|cop(y|ies) itself|self-replicat\w*|loss of control|rogue AI|jailbreak\w*)\b/i, 3],
-  [/\b(OpenAI|Anthropic|DeepMind|xAI|Mistral AI|Safe Superintelligence|SSI|Meta Superintelligence)\b/, 3],
+  // The frontier labs are the beat: news about one of them is on-topic by itself.
+  [/\b(OpenAI|Anthropic|DeepMind|xAI|Mistral AI|Safe Superintelligence|SSI|Meta Superintelligence|Thinking Machines)\b/, 4],
   [/\b(ChatGPT|GPT-\d|Claude|Gemini|Grok|Llama \d|o\d model|DeepSeek|Qwen)\b/, 3],
   [/\b(large language model|LLMs?|foundation model|reasoning model)s?\b/i, 3],
   [/\bAI agents?\b|\bagentic\b/i, 3],
   [/\b(Altman|Amodei|Hassabis|Sutskever|Hinton|Bengio|LeCun|Musk)\b/, 2],
   [/\bartificial intelligence\b/i, 2],
   [/\b(AI|A\.I\.) (model|system|lab|race|chip|compute|act|bill|regulation|jobs?|workers?)s?\b/i, 2],
+  [/\b(AI|A\.I\.) (giants?|companies|firms|industry|bubble|trade|stocks?|sell-?off|rout|spending|safety|risks?|incidents?)\b/i, 3],
+  [/\b(bioweapons?|biological weapons?|cyberweapons?|autonomous weapons?)\b/i, 2],
   [/\bhumanoids?\b/i, 4],
   [/\b(robots?|robotics)\b/i, 1],
   [/\b(Nvidia|TSMC|Cerebras|Stargate)\b/, 2],
@@ -59,7 +62,7 @@ const GENERIC = new Set(
 
 // Deliberately crude stemmer: enough to match "reasoning"/"reason",
 // "unveils"/"unveiled", "autonomously"/"autonomous".
-const NUMBERS: Record<string, string> = { one: "1", two: "2", three: "3", four: "4", five: "5", six: "6", seven: "7", eight: "8", nine: "9", ten: "10", eleven: "11", twelve: "12", dozen: "12", hundred: "100", thousand: "1000", million: "1000000", billion: "1000000000" };
+const NUMBERS: Record<string, string> = { one: "1", two: "2", three: "3", four: "4", five: "5", six: "6", seven: "7", eight: "8", nine: "9", ten: "10", eleven: "11", twelve: "12", dozen: "12", hundred: "100" };
 const IRREGULAR: Record<string, string> = { sued: "sue", sues: "sue", suing: "sue", lawsuit: "sue", lawsuits: "sue", says: "say", said: "say", led: "lead", leads: "lead", bought: "buy", buys: "buy", sold: "sell", sells: "sell", hit: "hit", hits: "hit", cut: "cut", cuts: "cut", children: "child", kids: "child", kid: "child", teens: "child", teen: "child", minors: "child", young: "child" };
 
 function stem(t: string): string {
@@ -79,6 +82,13 @@ export function tokens(title: string): string[] {
     .replace(/[^a-z0-9.\- ]+/g, " ")
     .split(/\s+/)
     .map((t) => t.replace(/^[.\-]+|[.\-]+$/g, ""))
+    // "16.8b", "250m", "1.2tn" -> the number plus its unit, so they match "16.8 billion".
+    .flatMap((t) => {
+      const m = t.match(/^(\d+(?:\.\d+)?)(bn|b|mn|m|tn|t|k)$/);
+      if (!m) return [t];
+      const unit = { b: "billion", bn: "billion", m: "million", mn: "million", t: "trillion", tn: "trillion", k: "thousand" }[m[2]]!;
+      return [m[1], unit];
+    })
     .map(stem)
     .filter((t) => (t.length > 1 || /\d/.test(t)) && !STOP.has(t));
 }

@@ -84,9 +84,8 @@ export function Meter({
       <p className="q">{def.question}</p>
       <Gauge index={reading.index} label={`${def.name}: ${reading.index} out of 100, ${reading.level}`} />
       <div className="readout">
-        <strong>{reading.index}</strong>
+        <strong style={{ color: bandColor(reading.index) }} title={`${reading.level} risk`}>{reading.index}</strong>
         <div className="sub">
-          <span className="lvl" style={{ color: bandColor(reading.index) }}>{reading.level}</span>
           <Change change={weeklyChange(days, reading.meter)} />
         </div>
       </div>

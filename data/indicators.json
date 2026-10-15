@@ -1,0 +1,36 @@
+{
+ "updatedAt": 1792076945064,
+ "anchors": {
+  "replacement": {
+   "index": 57,
+   "parts": [
+    {
+     "label": "Job postings in AI-exposed work",
+     "value": 0.835,
+     "index": 72,
+     "source": "Indeed Hiring Lab via FRED; software, customer service and admin postings vs all postings, Feb 2020 = 1",
+     "asOf": "2026-10-09"
+    },
+    {
+     "label": "Pace of frontier AI releases",
+     "value": 0.68,
+     "index": 41,
+     "source": "Epoch AI notable models; 1 frontier models in 180 days vs 3 in the year before",
+     "asOf": "2026-09-15"
+    }
+   ]
+  },
+  "extinction": {
+   "index": 19,
+   "parts": [
+    {
+     "label": "Pace of frontier AI releases",
+     "value": 0.68,
+     "index": 19,
+     "source": "Epoch AI notable models; 1 frontier models in 180 days vs 3 in the year before",
+     "asOf": "2026-09-15"
+    }
+   ]
+  }
+ }
+}

@@ -1,4 +1,4 @@
-// The Replacement Risk Index: a transparent, news-driven gauge of how strongly
+// The AI Replacing Humans Risk meter: a transparent, news-driven gauge of how strongly
 // this week's confirmed coverage points toward AI replacing human work.
 // It is an editorial signal derived from headlines, not a forecast.
 

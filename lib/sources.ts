@@ -1,4 +1,4 @@
-// The wire: outlets The Daily SI listens to.
+// The wire: outlets Daily Super Intelligence listens to.
 //
 // `outlet` is what counts for verification — two feeds from the same outlet
 // never corroborate each other. `primary` marks first-party sources (the labs

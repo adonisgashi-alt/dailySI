@@ -4,17 +4,15 @@ import "./globals.css";
 import { LiveClock } from "@/components/LiveClock";
 
 export const metadata: Metadata = {
-  title: { default: "The Daily SI — Superintelligence News, Verified", template: "%s · The Daily SI" },
+  title: { default: "Daily Super Intelligence — SI News, Verified", template: "%s · Daily Super Intelligence" },
   description:
-    "The newspaper of record for the superintelligence era. Only confirmed news on AGI, frontier AI and the race to superintelligence, plus a live Replacement Risk Index.",
-  openGraph: { title: "The Daily SI", description: "Verified news from the superintelligence frontier.", type: "website" },
+    "The newspaper of record for the superintelligence era. Only confirmed news on AGI, frontier AI and the race to superintelligence, plus a live AI Replacing Humans Risk meter.",
+  openGraph: { title: "Daily Super Intelligence", description: "Verified news from the superintelligence frontier.", type: "website" },
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f5ef" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0d10" },
-  ],
+  themeColor: "#f7f5ef",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -39,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="wrap">{children}</div>
         <footer className="site">
           <div className="wrap">
-            <span>© {new Date().getFullYear()} The Daily SI. Headlines link to and credit their original publishers.</span>
+            <span>© {new Date().getFullYear()} Daily Super Intelligence. Headlines link to and credit their original publishers.</span>
             <span>
               <Link href="/about">Standards &amp; methodology</Link> · <Link href="/api/news">JSON wire</Link>
             </span>

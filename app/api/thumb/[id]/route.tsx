@@ -65,7 +65,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={src} width={1200} height={750} alt="" style={{ position: "absolute", inset: 0 }} />
         <div style={{ position: "absolute", left: 56, top: 48, right: 56, display: "flex", flexDirection: "column", gap: 6 }}>
-          <div style={{ fontSize: 26, letterSpacing: 8, color: c1, display: "flex" }}>THE DAILY SI · {id.slice(0, 6).toUpperCase()}</div>
+          <div style={{ fontSize: 26, letterSpacing: 8, color: c1, display: "flex" }}>DAILY SUPER INTELLIGENCE · {id.slice(0, 6).toUpperCase()}</div>
           <div style={{ fontSize: Math.min(120, Math.floor(1700 / word.length)), fontWeight: 800, color: "#ffffff", letterSpacing: -2, display: "flex" }}>{word}</div>
         </div>
       </div>

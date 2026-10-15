@@ -53,10 +53,10 @@ export function RiskMeter({ initial }: { initial: RiskReading }) {
   return (
     <section className="risk" aria-labelledby="risk-title">
       <h4 id="risk-title">
-        <span>Replacement Risk Index</span>
+        <span>AI Replacing Humans Risk</span>
         <span className="pulse" style={{ fontWeight: 400, letterSpacing: "0.04em" }}>live</span>
       </h4>
-      <svg className="gauge" viewBox="0 0 240 132" role="img" aria-label={`Risk of AI replacing humans: ${risk.index} of 100, ${risk.level}`}>
+      <svg className="gauge" viewBox="0 0 240 132" role="img" aria-label={`AI replacing humans risk: ${risk.index} of 100, ${risk.level}`}>
         {BANDS.map((b) => {
           const d = arc(prev + 0.6, b.to - 0.6);
           prev = b.to;

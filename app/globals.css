@@ -20,25 +20,6 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #0b0d10;
-    --paper-2: #11151a;
-    --ink: #ecebe6;
-    --ink-2: #bdbbb4;
-    --ink-3: #868680;
-    --rule: #262b31;
-    --rule-strong: #ecebe6;
-    --accent: #3fe0ee;
-    --accent-glow: rgba(63, 224, 238, 0.18);
-    --ok: #3ccf8e;
-    --warn: #f0a83a;
-    --danger: #ff6b5e;
-    --card: #0f1216;
-    color-scheme: dark;
-  }
-}
-
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
@@ -81,8 +62,8 @@ img { display: block; max-width: 100%; }
 .masthead h1 {
   font-family: var(--black);
   font-weight: 400;
-  font-size: clamp(44px, 9vw, 92px);
-  line-height: 1;
+  font-size: clamp(34px, 6.4vw, 78px);
+  line-height: 1.05;
   margin: 0;
   letter-spacing: 0.01em;
 }

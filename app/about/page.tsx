@@ -13,7 +13,7 @@ export default function About() {
       <div className="kicker"><Link href="/">← Front page</Link></div>
       <h1>Standards &amp; Methodology</h1>
       <p className="dek">
-        The Daily SI is an automated newsroom that covers one beat: the road to superintelligence. Every story on the front
+        Daily Super Intelligence is an automated newsroom that covers one beat: the road to superintelligence. Every story on the front
         page has passed the verification standard below.
       </p>
 
@@ -38,7 +38,7 @@ export default function About() {
       </p>
       <p>Newsrooms monitored: {newsrooms.join(", ")}.</p>
 
-      <h2 id="risk">The Replacement Risk Index</h2>
+      <h2 id="risk">The AI Replacing Humans Risk meter</h2>
       <p>
         A 0–100 gauge of how strongly the week&apos;s <i>confirmed</i> news points toward AI replacing human work. Each story is
         checked for <b>pressure signals</b> (replacement of workers, AI-linked layoffs, automation, autonomous agents, superhuman
@@ -56,7 +56,7 @@ export default function About() {
       <p>
         We do not reuse publishers&apos; photos. Illustrative photography comes from <a href="https://openverse.org" style={{ textDecoration: "underline" }}>Openverse</a>,
         limited to licenses that allow reuse (CC0, CC BY, CC BY-SA, public domain), and always shows its creator and license.
-        When no photo fits, The Daily SI generates an original thumbnail, labelled <span className="badge">◇ Generated</span>.
+        When no photo fits, Daily Super Intelligence generates an original thumbnail, labelled <span className="badge">◇ Generated</span>.
       </p>
 
       <h2 id="data">Open data</h2>

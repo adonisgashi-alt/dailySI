@@ -19,7 +19,7 @@ export default async function FrontPage() {
     <>
       <header className="masthead">
         <h1>
-          <Link href="/">The Daily <span className="si">SI</span></Link>
+          <Link href="/">Daily <span className="si">Super Intelligence</span></Link>
         </h1>
         <p className="tagline">“All the Superintelligence News That&apos;s Confirmed to Print”</p>
         <div className="dateline">

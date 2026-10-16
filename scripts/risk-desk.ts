@@ -16,7 +16,7 @@ export const RISK_VERSION = 2;
 
 const categories = (id: MeterId) => [...new Set([...METERS[id].pressure, ...METERS[id].relief].map((s) => s.label)), "Other"];
 
-const verdict = (id: MeterId) =>
+export const verdict = (id: MeterId) =>
   z.object({
     reason: z.string().describe("One short sentence (max 20 words) explaining the score, in plain language."),
     relevant: z.boolean().describe(`Does this event bear on the question at all? ${METERS[id].question.replace("this week's confirmed news", "this event")}`),
@@ -27,7 +27,7 @@ const verdict = (id: MeterId) =>
 
 const Schema = z.object({ replacement: verdict("replacement"), extinction: verdict("extinction") });
 
-const SYSTEM = `You are the risk desk of Daily Super Intelligence. For one news event you judge what it actually implies for two questions:
+export const RISK_SYSTEM = `You are the risk desk of Daily Super Intelligence. For one news event you judge what it actually implies for two questions:
 
 1. AI replacing humans: does this event make it more or less likely that AI replaces human work at scale? Evidence for: AI-driven layoffs, automation of real jobs, agents doing work people did, big capability jumps, self-improving systems, cheap humanoid robots. Evidence against: AI creating or augmenting jobs, documented capability limits or failures, worker protections that bite, adoption stalling.
 2. AI extinction risk: does this event make a catastrophe from advanced AI (loss of control, misaligned systems, AI-enabled weapons of mass destruction) more or less likely? Evidence for: deceptive or uncontrolled model behavior, rapid capability gains, weapons uplift, racing, safety teams weakened, safety commitments dropped. Evidence against: binding regulation, international coordination, alignment or interpretability progress, credible safety testing, capability plateaus.
@@ -38,7 +38,7 @@ Rules:
 - Most events are "slight". Use "strong" only for clear, significant evidence.
 - Base your judgement only on what the reports say.`;
 
-function toRisk(id: MeterId, v: z.infer<ReturnType<typeof verdict>>): StoryRisk | null {
+export function toRisk(id: MeterId, v: z.infer<ReturnType<typeof verdict>>): StoryRisk | null {
   if (!v.relevant) return null;
   const category = categories(id).find((c) => c.toLowerCase() === v.category.trim().toLowerCase()) ?? "Other";
   const effect = v.effect.toLowerCase();
@@ -55,7 +55,7 @@ export async function judgeRisk(client: Anthropic, story: ArchivedStory): Promis
   const response = await client.beta.messages.parse({
     model: BULK_MODEL,
     max_tokens: 1500,
-    system: SYSTEM,
+    system: RISK_SYSTEM,
     output_config: { effort: "low", format: betaZodOutputFormat(Schema) },
     messages: [{ role: "user", content: `The event: ${story.headline}\n\nWhat outlets reported:\n${reports}${ours}` }],
   });

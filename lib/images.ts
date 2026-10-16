@@ -18,7 +18,7 @@ export type Art = {
   licenseUrl?: string;
   sourceUrl?: string;
   fit?: "contain"; // logos and diagrams: show whole, don't crop
-  picked?: boolean; // chosen and checked by the AI picture editor (scripts/picture.ts)
+  picked?: boolean; // chosen by the AI desk (scripts/desk-ai.ts); kept from then on
 };
 
 const UA = "DailySuperIntelligence/1.0 (https://daily-si.com; news site) node-fetch";

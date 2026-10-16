@@ -14,7 +14,7 @@ export const EDITOR_VERSION = 4;
 export const TOP_MODEL = "claude-sonnet-5-5";
 export const BULK_MODEL = "claude-haiku-5-5";
 
-const EditorialSchema = z.object({
+export const EditorialSchema = z.object({
   summary: z.string().describe("Two short paragraphs, 90-160 words in total, separated by a blank line."),
   why_it_matters: z.string().describe("One or two sentences on what this means for the path to superintelligence, AI safety, or human work."),
   key_facts: z.array(z.string()).describe("Two to four short factual bullet points taken from the reports."),
@@ -22,7 +22,7 @@ const EditorialSchema = z.object({
   note: z.string().describe("If sources disagree or a report seems to be about a different event, say what differs in one sentence; otherwise an empty string."),
 });
 
-const SYSTEM = `You are the AI desk of Daily Super Intelligence, a news site that covers superintelligence, AGI, frontier AI labs, AI safety, and AI's effect on human work.
+export const SYSTEM = `You are the AI desk of Daily Super Intelligence, a news site that covers superintelligence, AGI, frontier AI labs, AI safety, and AI's effect on human work.
 
 You write an original summary of one news event from what other outlets reported about it.
 
@@ -49,7 +49,7 @@ export function stripMeta(text: string): string {
   return paras.filter(Boolean).join("\n\n");
 }
 
-function reportList(s: ArchivedStory): string {
+export function reportList(s: ArchivedStory): string {
   return s.reports
     .slice(0, 10)
     .map((r) => `- ${r.outlet}${r.primary ? " (the organization itself)" : ""} reported: ${r.title}${r.summary ? `. ${r.summary}` : ""}`)

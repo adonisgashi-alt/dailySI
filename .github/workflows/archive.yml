@@ -29,8 +29,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node --experimental-strip-types scripts/archive.ts
-        # The Anthropic key is no longer passed in (cost). The AI desks are skipped
-        # without it; stories keep the publishers' text and automatic pictures.
+        env:
+          # Low-cost AI desk: one Claude Haiku call per new front-page story
+          # (scripts/desk-ai.ts). Remove this line to run with no AI at all.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - name: Commit archive
         run: |
           git add data/archive

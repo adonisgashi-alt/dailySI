@@ -337,3 +337,7 @@ test("different stories that share 'OpenAI, Anthropic, safety concerns' stay apa
 test("a gold miner's AGI ticker is not AGI news", () => {
   assert.equal(relevance({ title: "Alamos Gold Inc. (AGI) stock price, news, quote and history", summary: "" }), 0);
 });
+
+test("crypto price predictions are not news", () => {
+  assert.equal(relevance({ title: "Artificial Superintelligence Alliance (FET) Price Prediction 2026, 2027-2030", summary: "" }), 0);
+});

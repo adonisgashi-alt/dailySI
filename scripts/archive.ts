@@ -11,14 +11,13 @@ import { fileStories, dayIndex, type ArchiveState } from "../lib/archive-file.ts
 import { shardOf, type ArchiveDay, type DayEntry } from "../lib/archive.ts";
 import { utcDate } from "../lib/risk.ts";
 import Anthropic from "@anthropic-ai/sdk";
-import { EDITOR_VERSION, writeEditorial } from "./editor.ts";
-import { pickPicture } from "./picture.ts";
-import { judgeRisk, RISK_VERSION } from "./risk-desk.ts";
-import { generatedArt } from "../lib/images.ts";
+import { EDITOR_VERSION } from "./editor.ts";
+import { RISK_VERSION } from "./risk-desk.ts";
+import { runDesk } from "./desk-ai.ts";
 
-// How many stories the AI desk writes per run, and how many top stories go to the bigger model.
-const EDITOR_PER_RUN = Number(process.env.EDITOR_PER_RUN ?? 25);
-const TOP_STORIES = 8;
+// Cost control: only stories on the front page get the AI desk, a few per run.
+const FRONT_PAGE = 20;
+const DESK_PER_RUN = Number(process.env.DESK_PER_RUN ?? 6);
 
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), "..", "data", "archive");
 const DAYS = path.join(ROOT, "days");
@@ -51,7 +50,8 @@ for (let i = 0; i < 10; i++) {
 
 const changed = fileStories(state, stories.map(toArchived), loadDay);
 
-// AI desk: original write-ups for stories that don't have one yet, best stories first.
+// AI desk (low cost): one Claude Haiku call per front-page story writes the
+// summary, the risk verdicts and the picture choice. Each story is done once.
 if (process.env.ANTHROPIC_API_KEY) {
   const client = new Anthropic();
   const find = (id: string) => {
@@ -60,68 +60,28 @@ if (process.env.ANTHROPIC_API_KEY) {
     if (file && !state.days.has(d)) state.days.set(d, file);
     return { date: d, story: file?.stories.find((x) => x.id === id || x.aliases?.includes(id)) };
   };
-  let written = 0;
-  for (const [rank, s] of stories.entries()) {
-    if (written >= EDITOR_PER_RUN) break;
+  let done = 0;
+  for (const s of stories.slice(0, FRONT_PAGE)) {
+    if (done >= DESK_PER_RUN) break;
     const { date, story } = find(s.id);
-    if (!story || (story.editorial?.version ?? 1) >= EDITOR_VERSION) continue;
+    if (!story) continue;
+    const needs = (story.editorial?.version ?? 0) < EDITOR_VERSION || (story.risk?.version ?? 0) < RISK_VERSION || !story.art?.picked;
+    if (!needs) continue;
     try {
-      const { editorial, usage } = await writeEditorial(client, story, rank < TOP_STORIES);
-      console.log(`AI desk: ${usage} ${editorial ? "ok" : "declined"} | ${story.headline.slice(0, 70)}`);
-      if (editorial) {
-        story.editorial = editorial;
-        changed.add(date);
-        written++;
+      const r = await runDesk(client, story);
+      done++;
+      if (!r) {
+        console.log(`AI desk: declined | ${story.headline.slice(0, 70)}`);
+        continue;
       }
+      // Fill in only what's missing, so earlier (better) work is kept.
+      if ((story.editorial?.version ?? 0) < EDITOR_VERSION && r.editorial) story.editorial = r.editorial;
+      if ((story.risk?.version ?? 0) < RISK_VERSION && r.risk) story.risk = r.risk;
+      if (!story.art?.picked) story.art = r.art;
+      changed.add(date);
+      console.log(`AI desk: ${r.usage} | ${story.headline.slice(0, 60)}`);
     } catch (e) {
       console.error(`AI desk error (${(e as Error).message}); stopping for this run.`);
-      break;
-    }
-  }
-
-  // AI risk desk: what each story means for the meters. Small and cheap, so it
-  // also works through older stories still inside the meters' 7-day window.
-  let judged = 0;
-  const RISK_PER_RUN = Number(process.env.RISK_PER_RUN ?? 40);
-  const weekAgo = now - 7 * 8.64e7;
-  const pending = [
-    ...stories.map((s) => find(s.id)),
-    ...[...state.days.entries()].flatMap(([date, f]) => f.stories.filter((x) => x.lastUpdate > weekAgo).map((story) => ({ date, story }))),
-  ];
-  const seen = new Set<string>();
-  for (const { date, story } of pending) {
-    if (judged >= RISK_PER_RUN) break;
-    if (!story || seen.has(story.id) || (story.risk?.version ?? 0) >= RISK_VERSION) continue;
-    seen.add(story.id);
-    try {
-      const { risk, usage } = await judgeRisk(client, story);
-      if (!risk) continue;
-      story.risk = risk;
-      changed.add(date);
-      judged++;
-      const f = (v: typeof risk.replacement) => (v ? (v.score > 0 ? `+${v.score}` : `${v.score}`) : "n/a");
-      console.log(`Risk desk: ${usage} replace ${f(risk.replacement)} extinct ${f(risk.extinction)} | ${story.headline.slice(0, 60)}`);
-    } catch (e) {
-      console.error(`Risk desk error (${(e as Error).message}); stopping for this run.`);
-      break;
-    }
-  }
-
-  // AI picture editor: one check per story, best stories first.
-  let pictured = 0;
-  for (const s of stories) {
-    if (pictured >= EDITOR_PER_RUN) break;
-    const { date, story } = find(s.id);
-    if (!story || story.art?.picked) continue;
-    try {
-      const { art, note } = await pickPicture(client, story);
-      // No image truly fits: lock in the generated illustration rather than a loose match.
-      story.art = art ?? { ...generatedArt(story), picked: true };
-      changed.add(date);
-      pictured++;
-      console.log(`Picture desk: ${art ? "photo" : "illustration"} (${note}) | ${story.headline.slice(0, 60)}`);
-    } catch (e) {
-      console.error(`Picture desk error (${(e as Error).message}); stopping for this run.`);
       break;
     }
   }

@@ -32,7 +32,7 @@ const TERMS: [RegExp, number][] = [
 ];
 
 // Things that mention AI but are not frontier-AI news.
-const NOISE = /\b(deal of the day|discount|coupon|best .* to buy|gift guide|review:|hands-on:|podcast|newsletter|sponsored|webinar|horoscope|alamos gold|stock price, news, quote|NYSE:AGI|AGI\.TO|AGI Greenpac)\b/i;
+const NOISE = /\b(deal of the day|discount|coupon|best .* to buy|gift guide|review:|hands-on:|podcast|newsletter|sponsored|webinar|horoscope|alamos gold|stock price, news, quote|NYSE:AGI|AGI\.TO|AGI Greenpac|price prediction|price forecast)\b/i;
 
 export function relevance(item: Pick<RawItem, "title" | "summary">): number {
   const text = `${item.title} ${item.title} ${item.summary}`; // title counts double

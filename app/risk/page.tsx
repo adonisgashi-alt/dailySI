@@ -112,10 +112,9 @@ export default async function RiskPage() {
       <div className="prose">
         <h2>How the meters work</h2>
         <p>
-          Each meter is built from two parts. <b>News</b>: every confirmed story from the past seven days is read by our AI risk
-          desk (Claude Haiku), which judges what the event actually means for the question, from −2 (strong evidence against the
-          risk) to +2 (strong evidence for), or marks it as not relevant. Stories not yet judged fall back to keyword signals. The
-          scores are averaged, with newer stories and stories confirmed by more outlets counting for more, and pulled toward the
+          Each meter is built from two parts. <b>News</b>: every confirmed story from the past seven days is scored from −2
+          (strong evidence against the risk) to +2 (strong evidence for) using the signals listed below; some stories were
+          judged individually by an AI risk desk while it ran, and those verdicts are kept. The scores are averaged, with newer stories and stories confirmed by more outlets counting for more, and pulled toward the
           baseline when there are few stories, so a busy news week does not move the needle by itself. <b>Public data</b>: where
           we have it, slow-moving public indicators make up half of the reading. Finally, a meter moves at most 3 points a day.
         </p>

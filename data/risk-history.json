@@ -365,5 +365,191 @@
    "scoredByAI": 65,
    "computedAt": 1792108800000
   }
+ },
+ {
+  "date": "2026-10-17",
+  "replacement": {
+   "meter": "replacement",
+   "index": 64,
+   "level": "High",
+   "raw": 64,
+   "news": 63,
+   "anchor": {
+    "index": 66,
+    "parts": [
+     {
+      "label": "Job postings in AI-exposed work",
+      "value": 0.835,
+      "index": 72,
+      "source": "Indeed Hiring Lab via FRED; software, customer service and admin postings vs all postings, Feb 2020 = 1",
+      "asOf": "2026-10-09"
+     },
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.28,
+      "index": 59,
+      "source": "Epoch AI notable models from companies; 62 in the last 180 days vs 98 in the year before",
+      "asOf": "2026-10-03"
+     }
+    ]
+   },
+   "pressure": 24.9,
+   "relief": 6,
+   "drivers": [
+    {
+     "label": "Autonomous agents",
+     "delta": 5.081450762263565,
+     "storyId": "oan9ev1y4hmm",
+     "headline": "Nvidia Launches Three Nemotron AI Models, Including Two for Local AI Agents"
+    },
+    {
+     "label": "Autonomous agents",
+     "delta": -4.157587954237406,
+     "storyId": "1trb81c10b71",
+     "headline": "Schwab and JPMorgan are blocking AI agents from moving customer money",
+     "reason": "Banks blocking agents from moving money is a friction signal against agents doing financial work, though it is only tangentially about human jobs."
+    },
+    {
+     "label": "Capability releases",
+     "delta": 3.5731619553315856,
+     "storyId": "1ms7jjf4rsxl",
+     "headline": "Gemini 4 Argon: Built to solve your hardest problems",
+     "reason": "A new frontier model with agentic and robotics focus raises capability for work automation, though benchmark gains alone don't show job replacement."
+    },
+    {
+     "label": "Autonomous agents",
+     "delta": 2.872818313321272,
+     "storyId": "1dv8wnvp3sry",
+     "headline": "Jensen Huang Is Giving $250 Million to AI Safety and Says He’d Cut Off Reckless Customers"
+    },
+    {
+     "label": "Automation",
+     "delta": 2.477059354506384,
+     "storyId": "1b3c6frxmmu8",
+     "headline": "TSMC Eyes Texas Expansion As AI Chip Demand Surges, Terafab Talks Confirmed",
+     "reason": "Record AI chip demand and fab expansion reflect AI buildout, not direct evidence of AI replacing human work at scale."
+    }
+   ],
+   "components": [
+    {
+     "label": "Autonomous agents",
+     "value": 9.6
+    },
+    {
+     "label": "Automation",
+     "value": 4.7
+    },
+    {
+     "label": "Capability releases",
+     "value": 3.9
+    },
+    {
+     "label": "White-collar exposure",
+     "value": 0.5
+    },
+    {
+     "label": "Physical automation",
+     "value": 0.4
+    }
+   ],
+   "basedOn": 20,
+   "scoredByAI": 57,
+   "computedAt": 1792195200000
+  },
+  "extinction": {
+   "meter": "extinction",
+   "index": 33,
+   "level": "Guarded",
+   "raw": 33,
+   "news": 28,
+   "anchor": {
+    "index": 37,
+    "parts": [
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.28,
+      "index": 37,
+      "source": "Epoch AI notable models from companies; 62 in the last 180 days vs 98 in the year before",
+      "asOf": "2026-10-03"
+     }
+    ]
+   },
+   "pressure": 22.2,
+   "relief": 29.7,
+   "drivers": [
+    {
+     "label": "Regulation & compute governance",
+     "delta": -3.7756422637725233,
+     "storyId": "1ec9weyqrp0k",
+     "headline": "Anthropic quietly pitches its own AI safety bill to lawmakers, Politico reports By Reuters",
+     "reason": "Proposed state AI safety bills and lab lobbying may bear on oversight of advanced AI, though the reports give no binding measures."
+    },
+    {
+     "label": "Other",
+     "delta": -3.614563015138361,
+     "storyId": "p26p3e529g6g",
+     "headline": "NYC comptroller urges Anthropic to delay IPO over AI safety concerns - Reuters",
+     "reason": "Investor pressure for safety and governance review slightly favors caution, but it is a non-binding request with no regulatory force."
+    },
+    {
+     "label": "Race dynamics",
+     "delta": 3.5731619553315856,
+     "storyId": "1ms7jjf4rsxl",
+     "headline": "Gemini 4 Argon: Built to solve your hardest problems",
+     "reason": "A frontier capability release in a race adds modest risk, with no safety testing or governance details reported."
+    },
+    {
+     "label": "Other",
+     "delta": -3.544316007559124,
+     "storyId": "yj0rh8beyve0",
+     "headline": "FTC Subpoenas OpenAI and Anthropic as AI Safety Incidents Trigger Consumer Protection Investigation",
+     "reason": "FTC subpoenas over safety incidents add some regulatory scrutiny of labs, a modest signal toward oversight, though the probe is consumer-focused rather than catastrophic-risk focused."
+    },
+    {
+     "label": "Safety testing",
+     "delta": -3.2038500787160453,
+     "storyId": "1hejf2h8o6yj",
+     "headline": "Anthropic grants outside evaluator METR employee-level access in AI safety push",
+     "reason": "Independent evaluator access with publication rights is credible safety testing and oversight, lowering catastrophe risk."
+    }
+   ],
+   "components": [
+    {
+     "label": "Other",
+     "value": -15.2
+    },
+    {
+     "label": "Loss of control",
+     "value": 10.5
+    },
+    {
+     "label": "Regulation & compute governance",
+     "value": -8.1
+    },
+    {
+     "label": "Race dynamics",
+     "value": 6.1
+    },
+    {
+     "label": "Safety testing",
+     "value": -3.2
+    },
+    {
+     "label": "International coordination",
+     "value": -3.1
+    },
+    {
+     "label": "Deceptive or misaligned behavior",
+     "value": 2.9
+    },
+    {
+     "label": "Self-improvement",
+     "value": 1.9
+    }
+   ],
+   "basedOn": 23,
+   "scoredByAI": 57,
+   "computedAt": 1792195200000
+  }
  }
 ]

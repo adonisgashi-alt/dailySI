@@ -1,5 +1,5 @@
 {
- "updatedAt": 1792111044159,
+ "updatedAt": 1792197478253,
  "anchors": {
   "replacement": {
    "index": 66,
@@ -16,7 +16,7 @@
      "value": 1.28,
      "index": 59,
      "source": "Epoch AI notable models from companies; 62 in the last 180 days vs 98 in the year before",
-     "asOf": "2026-10-02"
+     "asOf": "2026-10-03"
     }
    ]
   },
@@ -28,7 +28,7 @@
      "value": 1.28,
      "index": 37,
      "source": "Epoch AI notable models from companies; 62 in the last 180 days vs 98 in the year before",
-     "asOf": "2026-10-02"
+     "asOf": "2026-10-03"
     }
    ]
   }

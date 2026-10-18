@@ -1,8 +1,8 @@
 {
- "updatedAt": 1792197478253,
+ "updatedAt": 1792297041927,
  "anchors": {
   "replacement": {
-   "index": 66,
+   "index": 65,
    "parts": [
     {
      "label": "Job postings in AI-exposed work",
@@ -13,22 +13,22 @@
     },
     {
      "label": "Pace of AI model releases",
-     "value": 1.28,
-     "index": 59,
-     "source": "Epoch AI notable models from companies; 62 in the last 180 days vs 98 in the year before",
-     "asOf": "2026-10-03"
+     "value": 1.22,
+     "index": 58,
+     "source": "Epoch AI notable models from companies; 60 in the last 180 days vs 100 in the year before",
+     "asOf": "2026-10-04"
     }
    ]
   },
   "extinction": {
-   "index": 37,
+   "index": 36,
    "parts": [
     {
      "label": "Pace of AI model releases",
-     "value": 1.28,
-     "index": 37,
-     "source": "Epoch AI notable models from companies; 62 in the last 180 days vs 98 in the year before",
-     "asOf": "2026-10-03"
+     "value": 1.22,
+     "index": 36,
+     "source": "Epoch AI notable models from companies; 60 in the last 180 days vs 100 in the year before",
+     "asOf": "2026-10-04"
     }
    ]
   }
@@ -156,6 +156,8 @@
   "60232d6a-c3d1-5422-aff7-6a36b18a8586": 1791849600000,
   "5b7d3f22-05ae-56ed-bd3c-a46d3f9f146c": 1791849600000,
   "1e8a07d1-0020-5172-87b2-9bb47b2ae6b0": 1791849600000,
-  "897a385d-1107-5f02-b3ec-107c3b2d5dab": 1791849600000
+  "897a385d-1107-5f02-b3ec-107c3b2d5dab": 1791849600000,
+  "8c00d7c6-79a1-50b1-8254-7f138b398b4e": 1792022400000,
+  "e2281e80-ebd0-59db-a758-ed599f7402f6": 1792022400000
  }
 }

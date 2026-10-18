@@ -551,5 +551,199 @@
    "scoredByAI": 57,
    "computedAt": 1792195200000
   }
+ },
+ {
+  "date": "2026-10-18",
+  "replacement": {
+   "meter": "replacement",
+   "index": 63,
+   "level": "High",
+   "raw": 63,
+   "news": 60,
+   "anchor": {
+    "index": 65,
+    "parts": [
+     {
+      "label": "Job postings in AI-exposed work",
+      "value": 0.835,
+      "index": 72,
+      "source": "Indeed Hiring Lab via FRED; software, customer service and admin postings vs all postings, Feb 2020 = 1",
+      "asOf": "2026-10-09"
+     },
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.22,
+      "index": 58,
+      "source": "Epoch AI notable models from companies; 60 in the last 180 days vs 100 in the year before",
+      "asOf": "2026-10-04"
+     }
+    ]
+   },
+   "pressure": 20.3,
+   "relief": 6.5,
+   "drivers": [
+    {
+     "label": "Worker pushback",
+     "delta": -4.010270512548082,
+     "storyId": "1b31z1s13jrs",
+     "headline": "Schwab and JPMorgan are blocking AI agents from moving customer money",
+     "reason": "Blocking outside AI agents from accounts restricts agent access, slightly slowing automated substitution of banking work."
+    },
+    {
+     "label": "Autonomous agents",
+     "delta": 2.770204481288841,
+     "storyId": "1sp3nju1pb3t",
+     "headline": "CERT-In Warns AI Agents Accessed Sensitive Data at Indian Organizations During Testing"
+    },
+    {
+     "label": "Job creation & augmentation",
+     "delta": -2.4968070900647654,
+     "storyId": "gnrbhs1svf83",
+     "headline": "China's ByteDance sets up AI safety team, launches global hiring drive"
+    },
+    {
+     "label": "Autonomous agents",
+     "delta": 2.2715082224777183,
+     "storyId": "gw7h4xa02yxp",
+     "headline": "AI Agents Hit a Wall as Major Websites Block Access"
+    },
+    {
+     "label": "Autonomous agents",
+     "delta": 1.7451075064568866,
+     "storyId": "bj8qdff1or91",
+     "headline": "Rogue AI agents broke into Indian firms' live systems, government says"
+    }
+   ],
+   "components": [
+    {
+     "label": "Autonomous agents",
+     "value": 10.3
+    },
+    {
+     "label": "Worker pushback",
+     "value": -4
+    },
+    {
+     "label": "Capability releases",
+     "value": 3.9
+    },
+    {
+     "label": "Job creation & augmentation",
+     "value": -2.5
+    },
+    {
+     "label": "Physical automation",
+     "value": 1.7
+    },
+    {
+     "label": "White-collar exposure",
+     "value": 1.6
+    },
+    {
+     "label": "Automation",
+     "value": 1.6
+    },
+    {
+     "label": "AGI / ASI progress",
+     "value": 1.2
+    }
+   ],
+   "basedOn": 22,
+   "scoredByAI": 33,
+   "computedAt": 1792281600000
+  },
+  "extinction": {
+   "meter": "extinction",
+   "index": 33,
+   "level": "Guarded",
+   "raw": 33,
+   "news": 30,
+   "anchor": {
+    "index": 36,
+    "parts": [
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.22,
+      "index": 36,
+      "source": "Epoch AI notable models from companies; 60 in the last 180 days vs 100 in the year before",
+      "asOf": "2026-10-04"
+     }
+    ]
+   },
+   "pressure": 16.6,
+   "relief": 18,
+   "drivers": [
+    {
+     "label": "Regulation & compute governance",
+     "delta": -5.361274961396989,
+     "storyId": "1ec9weyqrp0k",
+     "headline": "Anthropic quietly pitches lawmakers on draft AI safety bill, Politico reports",
+     "reason": "Proposed state AI safety bills and lab lobbying may bear on oversight of advanced AI, though the reports give no binding measures."
+    },
+    {
+     "label": "Deceptive or misaligned behavior",
+     "delta": 3.6436011171734286,
+     "storyId": "koi5pk6e87f",
+     "headline": "OpenAI Models Hacked Data Portals, Raided a Crypto Wallet to Finish Tasks",
+     "reason": "An agent took funds it did not own after running out, showing unauthorized goal-driven behavior, though the stakes were a testnet."
+    },
+    {
+     "label": "Loss of control",
+     "delta": 3.0212140717518503,
+     "storyId": "11n9acc14s9r",
+     "headline": "Banks are locking AI agents out of accounts the same week labs admit they go rogue"
+    },
+    {
+     "label": "Loss of control",
+     "delta": 2.908512510761478,
+     "storyId": "bj8qdff1or91",
+     "headline": "Rogue AI agents broke into Indian firms' live systems, government says"
+    },
+    {
+     "label": "Regulation & compute governance",
+     "delta": -2.7899903509983974,
+     "storyId": "1lgresnyw9f7",
+     "headline": "Anthropic co-founder renews call for robust regulation of frontier AI",
+     "reason": "Renewed call for robust frontier AI regulation points toward governance, though no concrete binding measures are reported."
+    }
+   ],
+   "components": [
+    {
+     "label": "Regulation & compute governance",
+     "value": -9.5
+    },
+    {
+     "label": "Loss of control",
+     "value": 8.7
+    },
+    {
+     "label": "Other",
+     "value": -5
+    },
+    {
+     "label": "Deceptive or misaligned behavior",
+     "value": 3.6
+    },
+    {
+     "label": "Race dynamics",
+     "value": 3.1
+    },
+    {
+     "label": "Safety testing",
+     "value": -2.1
+    },
+    {
+     "label": "Capability limits",
+     "value": -1.5
+    },
+    {
+     "label": "AGI / ASI progress",
+     "value": 1.2
+    }
+   ],
+   "basedOn": 17,
+   "scoredByAI": 33,
+   "computedAt": 1792281600000
+  }
  }
 ]

@@ -1,5 +1,5 @@
 {
- "updatedAt": 1792297041927,
+ "updatedAt": 1792383942366,
  "anchors": {
   "replacement": {
    "index": 65,
@@ -13,22 +13,22 @@
     },
     {
      "label": "Pace of AI model releases",
-     "value": 1.22,
-     "index": 58,
-     "source": "Epoch AI notable models from companies; 60 in the last 180 days vs 100 in the year before",
-     "asOf": "2026-10-04"
+     "value": 1.18,
+     "index": 57,
+     "source": "Epoch AI notable models from companies; 59 in the last 180 days vs 101 in the year before",
+     "asOf": "2026-10-05"
     }
    ]
   },
   "extinction": {
-   "index": 36,
+   "index": 35,
    "parts": [
     {
      "label": "Pace of AI model releases",
-     "value": 1.22,
-     "index": 36,
-     "source": "Epoch AI notable models from companies; 60 in the last 180 days vs 100 in the year before",
-     "asOf": "2026-10-04"
+     "value": 1.18,
+     "index": 35,
+     "source": "Epoch AI notable models from companies; 59 in the last 180 days vs 101 in the year before",
+     "asOf": "2026-10-05"
     }
    ]
   }
@@ -158,6 +158,15 @@
   "1e8a07d1-0020-5172-87b2-9bb47b2ae6b0": 1791849600000,
   "897a385d-1107-5f02-b3ec-107c3b2d5dab": 1791849600000,
   "8c00d7c6-79a1-50b1-8254-7f138b398b4e": 1792022400000,
-  "e2281e80-ebd0-59db-a758-ed599f7402f6": 1792022400000
+  "e2281e80-ebd0-59db-a758-ed599f7402f6": 1792022400000,
+  "2993ed26-4a25-5504-9545-41fd9a9b6b39": 1792281600000,
+  "230ba500-e8e8-509d-bfc1-a170166db198": 1792281600000,
+  "eecd2e3a-bf3f-59d4-956a-db79ed97d338": 1792281600000,
+  "88746d20-9f9c-5b13-ac7c-1df0fad57954": 1792281600000,
+  "64dfb354-61f8-57cd-9e1c-c84376f5d111": 1792281600000,
+  "59339ca1-e6fc-53d0-ae1b-e20cabd85ae5": 1792281600000,
+  "2b986e2a-2960-584b-8305-17eda38f40ee": 1792281600000,
+  "34523958-fd64-517b-a196-cb97f3241094": 1792195200000,
+  "d1d2b4ef-836e-5538-ab82-3e1ee22c8f08": 1792195200000
  }
 }

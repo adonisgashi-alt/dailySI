@@ -745,5 +745,179 @@
    "scoredByAI": 33,
    "computedAt": 1792281600000
   }
+ },
+ {
+  "date": "2026-10-19",
+  "replacement": {
+   "meter": "replacement",
+   "index": 62,
+   "level": "High",
+   "raw": 62,
+   "news": 60,
+   "anchor": {
+    "index": 65,
+    "parts": [
+     {
+      "label": "Job postings in AI-exposed work",
+      "value": 0.835,
+      "index": 72,
+      "source": "Indeed Hiring Lab via FRED; software, customer service and admin postings vs all postings, Feb 2020 = 1",
+      "asOf": "2026-10-09"
+     },
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.18,
+      "index": 57,
+      "source": "Epoch AI notable models from companies; 59 in the last 180 days vs 101 in the year before",
+      "asOf": "2026-10-05"
+     }
+    ]
+   },
+   "pressure": 18.9,
+   "relief": 5.8,
+   "drivers": [
+    {
+     "label": "Regulation & oversight",
+     "delta": -3.8607680122919796,
+     "storyId": "nnwgxx9cdpyl",
+     "headline": "Anthropic Pitches a $1B AI Safety Bill to Lawmakers [2026]"
+    },
+    {
+     "label": "Capability releases",
+     "delta": 3.255056774273285,
+     "storyId": "1ms7jjf4rsxl",
+     "headline": "Gemini 4 Argon: Built to solve your hardest problems",
+     "reason": "A new frontier model with agentic and robotics focus raises capability for work automation, though benchmark gains alone don't show job replacement."
+    },
+    {
+     "label": "Autonomous agents",
+     "delta": 2.5017535807806315,
+     "storyId": "bj8qdff1or91",
+     "headline": "CERT-In Issues Critical Alert After AI Agents Access Live Systems of Indian Organisations Without Authorisation"
+    },
+    {
+     "label": "Autonomous agents",
+     "delta": 1.9020185159750405,
+     "storyId": "16he0d1cnfqa",
+     "headline": "Charles Schwab CEO: AI agents trading on your behalf need 'rules of the road'"
+    },
+    {
+     "label": "Autonomous agents",
+     "delta": 1.873332517649923,
+     "storyId": "z0gn1e1gyg2k",
+     "headline": "Anthropic has nearly stopped hiring junior staff because AI agents now work six times as many hours"
+    }
+   ],
+   "components": [
+    {
+     "label": "Autonomous agents",
+     "value": 11.5
+    },
+    {
+     "label": "Regulation & oversight",
+     "value": -5.8
+    },
+    {
+     "label": "Capability releases",
+     "value": 5.2
+    },
+    {
+     "label": "AGI / ASI progress",
+     "value": 1.8
+    },
+    {
+     "label": "White-collar exposure",
+     "value": 0.3
+    },
+    {
+     "label": "Automation",
+     "value": 0.2
+    }
+   ],
+   "basedOn": 22,
+   "scoredByAI": 16,
+   "computedAt": 1792368000000
+  },
+  "extinction": {
+   "meter": "extinction",
+   "index": 36,
+   "level": "Guarded",
+   "raw": 38,
+   "news": 42,
+   "anchor": {
+    "index": 35,
+    "parts": [
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.18,
+      "index": 35,
+      "source": "Epoch AI notable models from companies; 59 in the last 180 days vs 101 in the year before",
+      "asOf": "2026-10-05"
+     }
+    ]
+   },
+   "pressure": 10.5,
+   "relief": 3.6,
+   "drivers": [
+    {
+     "label": "Loss of control",
+     "delta": 4.169589301301053,
+     "storyId": "bj8qdff1or91",
+     "headline": "CERT-In Issues Critical Alert After AI Agents Access Live Systems of Indian Organisations Without Authorisation"
+    },
+    {
+     "label": "Race dynamics",
+     "delta": 3.255056774273285,
+     "storyId": "1ms7jjf4rsxl",
+     "headline": "Gemini 4 Argon: Built to solve your hardest problems",
+     "reason": "A frontier capability release in a race adds modest risk, with no safety testing or governance details reported."
+    },
+    {
+     "label": "Regulation & compute governance",
+     "delta": -2.4853709126634724,
+     "storyId": "1losx0012d0n",
+     "headline": "Anthropic Co-founder Renews Call for Robust Regulation of Frontier AI",
+     "reason": "Renewed call for robust frontier AI regulation points toward governance, though no concrete binding measures are reported."
+    },
+    {
+     "label": "Pauses & kill switches",
+     "delta": -1.1210104444811786,
+     "storyId": "13gzyy91tc8i",
+     "headline": "NVIDIA Draws Red Line on AI Safety: Jensen Huang Says Chip Supplies Could Be Halted if Customers Develop Unsafe Software"
+    },
+    {
+     "label": "Race dynamics",
+     "delta": 1.0318817356724548,
+     "storyId": "i7vxa8vt13tg",
+     "headline": "Meta unveils Muse Wonder AI models to advance ‘personal superintelligence’ push",
+     "reason": "A frontier release with open weights adds capability and proliferation risk, with no reported safety testing or governance details."
+    }
+   ],
+   "components": [
+    {
+     "label": "Loss of control",
+     "value": 4.4
+    },
+    {
+     "label": "Race dynamics",
+     "value": 4.3
+    },
+    {
+     "label": "Regulation & compute governance",
+     "value": -2.5
+    },
+    {
+     "label": "AGI / ASI progress",
+     "value": 1.8
+    },
+    {
+     "label": "Pauses & kill switches",
+     "value": -1.1
+    }
+   ],
+   "basedOn": 8,
+   "scoredByAI": 16,
+   "computedAt": 1792368000000
+  }
  }
 ]

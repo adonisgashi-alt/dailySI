@@ -29,10 +29,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node --experimental-strip-types scripts/archive.ts
-        # No AI: the Anthropic API is not used. Stories keep the publishers' text,
-        # pictures come from the automatic matching in lib/images.ts, and the
-        # risk meters use keyword signals plus public data. (scripts/desk-ai.ts is
-        # only used if an ANTHROPIC_API_KEY env line is added back here.)
+        # No AI and no API keys: stories keep the publishers' text, pictures come
+        # from the automatic matching in lib/images.ts.
       - name: Commit archive
         run: |
           git add data/archive

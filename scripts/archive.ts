@@ -10,14 +10,7 @@ import { buildStories, toArchived } from "../lib/edition.ts";
 import { fileStories, dayIndex, type ArchiveState } from "../lib/archive-file.ts";
 import { shardOf, type ArchiveDay, type DayEntry } from "../lib/archive.ts";
 import { utcDate } from "../lib/risk.ts";
-import Anthropic from "@anthropic-ai/sdk";
-import { EDITOR_VERSION } from "./editor.ts";
-import { RISK_VERSION } from "./risk-desk.ts";
-import { runDesk } from "./desk-ai.ts";
 
-// Cost control: only stories on the front page get the AI desk, a few per run.
-const FRONT_PAGE = 20;
-const DESK_PER_RUN = Number(process.env.DESK_PER_RUN ?? 6);
 
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), "..", "data", "archive");
 const DAYS = path.join(ROOT, "days");
@@ -50,44 +43,8 @@ for (let i = 0; i < 10; i++) {
 
 const changed = fileStories(state, stories.map(toArchived), loadDay);
 
-// AI desk (low cost): one Claude Haiku call per front-page story writes the
-// summary, the risk verdicts and the picture choice. Each story is done once.
-if (process.env.ANTHROPIC_API_KEY) {
-  const client = new Anthropic();
-  const find = (id: string) => {
-    const d = state.ids[id];
-    const file = d ? state.days.get(d) ?? loadDay(d) : undefined;
-    if (file && !state.days.has(d)) state.days.set(d, file);
-    return { date: d, story: file?.stories.find((x) => x.id === id || x.aliases?.includes(id)) };
-  };
-  let done = 0;
-  for (const s of stories.slice(0, FRONT_PAGE)) {
-    if (done >= DESK_PER_RUN) break;
-    const { date, story } = find(s.id);
-    if (!story) continue;
-    const needs = (story.editorial?.version ?? 0) < EDITOR_VERSION || (story.risk?.version ?? 0) < RISK_VERSION || !story.art?.picked;
-    if (!needs) continue;
-    try {
-      const r = await runDesk(client, story);
-      done++;
-      if (!r) {
-        console.log(`AI desk: declined | ${story.headline.slice(0, 70)}`);
-        continue;
-      }
-      // Fill in only what's missing, so earlier (better) work is kept.
-      if ((story.editorial?.version ?? 0) < EDITOR_VERSION && r.editorial) story.editorial = r.editorial;
-      if ((story.risk?.version ?? 0) < RISK_VERSION && r.risk) story.risk = r.risk;
-      if (!story.art?.picked) story.art = r.art;
-      changed.add(date);
-      console.log(`AI desk: ${r.usage} | ${story.headline.slice(0, 60)}`);
-    } catch (e) {
-      console.error(`AI desk error (${(e as Error).message}); stopping for this run.`);
-      break;
-    }
-  }
-} else {
-  console.log("ANTHROPIC_API_KEY not set; skipping the AI desk.");
-}
+// No AI: stories keep the publishers' text and automatic pictures. Write-ups,
+// pictures and risk verdicts made earlier by the AI desk stay in the archive.
 
 for (const d of changed) await writeFile(path.join(DAYS, `${d}.json`), json(state.days.get(d)));
 const shards = new Map<string, Record<string, string>>();

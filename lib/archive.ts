@@ -15,7 +15,7 @@ import type { Anchor, MeterId, RiskScores } from "./risk.ts";
 
 export type ArchivedReport = { title: string; link: string; outlet: string; publishedAt: number; summary: string; primary: boolean };
 
-/** Original write-up by the AI desk (scripts/editor.ts), based only on the reports. */
+/** Original write-up by the former AI desk, based only on the reports (kept for older stories). */
 export type Editorial = {
   summary: string; // paragraphs separated by blank lines
   whyItMatters: string;
@@ -24,7 +24,7 @@ export type Editorial = {
   note: string; // what the sources disagree on, if anything
   model: string;
   writtenAt: number;
-  version?: number; // prompt version (scripts/editor.ts EDITOR_VERSION)
+  version?: number; // prompt version the write-up was made with
 };
 
 export type ArchivedStory = {

@@ -82,7 +82,7 @@ export type Driver = { label: string; delta: number; storyId: string; headline: 
 
 export type Level = "Low" | "Guarded" | "Elevated" | "High" | "Severe";
 
-/** One story's effect on one meter, as judged by the AI risk desk (scripts/risk-desk.ts). */
+/** One story's effect on one meter, as judged by the former AI risk desk (kept for older stories). */
 export type StoryRisk = { score: number; category: string; reason: string }; // score -2..+2
 
 /** The AI risk desk's verdict on a story; null for a meter means "not relevant to it". */

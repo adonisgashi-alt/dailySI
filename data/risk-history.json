@@ -919,5 +919,175 @@
    "scoredByAI": 16,
    "computedAt": 1792368000000
   }
+ },
+ {
+  "date": "2026-10-20",
+  "replacement": {
+   "meter": "replacement",
+   "index": 65,
+   "level": "High",
+   "raw": 66,
+   "news": 67,
+   "anchor": {
+    "index": 64,
+    "parts": [
+     {
+      "label": "Job postings in AI-exposed work",
+      "value": 0.835,
+      "index": 72,
+      "source": "Indeed Hiring Lab via FRED; software, customer service and admin postings vs all postings, Feb 2020 = 1",
+      "asOf": "2026-10-09"
+     },
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.15,
+      "index": 56,
+      "source": "Epoch AI notable models from companies; 58 in the last 180 days vs 102 in the year before",
+      "asOf": "2026-10-06"
+     }
+    ]
+   },
+   "pressure": 46.9,
+   "relief": 9.5,
+   "drivers": [
+    {
+     "label": "Autonomous agents",
+     "delta": 9.209811674559358,
+     "storyId": "6lhzs41sfak9",
+     "headline": "AI agents are only as good as the personal information you share. That raises privacy concerns"
+    },
+    {
+     "label": "Regulation & oversight",
+     "delta": -6.5050989242270685,
+     "storyId": "bwhjoq1i51wf",
+     "headline": "Anthropic pitches Congress its own frontier-AI bill: models could only be halted above 50 deaths or $1B in damage"
+    },
+    {
+     "label": "Superhuman performance",
+     "delta": 4.980264243210903,
+     "storyId": "17jg0tto12qt",
+     "headline": "Anthropic commits 5% of shares to new public benefit fund that could address AI job disruption"
+    },
+    {
+     "label": "Autonomous agents",
+     "delta": 4.8238751251549745,
+     "storyId": "1g4uxcr1ctmr",
+     "headline": "Arm says its AGI CPU delivers nearly 2X the performance per rack of AMD EPYC 9755 in new agentic AI CPU tests"
+    },
+    {
+     "label": "Autonomous agents",
+     "delta": 4.615991311755451,
+     "storyId": "w6uvqmuo63ui",
+     "headline": "Can a Million AI Agents Create Superintelligence?"
+    }
+   ],
+   "components": [
+    {
+     "label": "Autonomous agents",
+     "value": 38.2
+    },
+    {
+     "label": "Regulation & oversight",
+     "value": -9.5
+    },
+    {
+     "label": "Superhuman performance",
+     "value": 5
+    },
+    {
+     "label": "AGI / ASI progress",
+     "value": 3.1
+    },
+    {
+     "label": "Capability releases",
+     "value": 0.4
+    },
+    {
+     "label": "White-collar exposure",
+     "value": 0.2
+    },
+    {
+     "label": "Automation",
+     "value": 0.2
+    }
+   ],
+   "basedOn": 27,
+   "scoredByAI": 13,
+   "computedAt": 1792454400000
+  },
+  "extinction": {
+   "meter": "extinction",
+   "index": 39,
+   "level": "Guarded",
+   "raw": 41,
+   "news": 48,
+   "anchor": {
+    "index": 34,
+    "parts": [
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.15,
+      "index": 34,
+      "source": "Epoch AI notable models from companies; 58 in the last 180 days vs 102 in the year before",
+      "asOf": "2026-10-06"
+     }
+    ]
+   },
+   "pressure": 17.1,
+   "relief": 3.3,
+   "drivers": [
+    {
+     "label": "Loss of control",
+     "delta": 5.5391895741065404,
+     "storyId": "w6uvqmuo63ui",
+     "headline": "Can a Million AI Agents Create Superintelligence?"
+    },
+    {
+     "label": "Loss of control",
+     "delta": 3.284314615441877,
+     "storyId": "1wsq6neyrf9t",
+     "headline": "Rogue AI agents are targeting Canada. Now HR owns the accountability"
+    },
+    {
+     "label": "Pauses & kill switches",
+     "delta": -3.2525494621135342,
+     "storyId": "bwhjoq1i51wf",
+     "headline": "Anthropic pitches Congress its own frontier-AI bill: models could only be halted above 50 deaths or $1B in damage"
+    },
+    {
+     "label": "Loss of control",
+     "delta": 2.825577016331297,
+     "storyId": "1ltlyel1ue8a",
+     "headline": "Microsoft unveils tools to monitor and corral rogue AI agents"
+    },
+    {
+     "label": "AGI / ASI progress",
+     "delta": 1.9295500500619895,
+     "storyId": "1g4uxcr1ctmr",
+     "headline": "Arm says its AGI CPU delivers nearly 2X the performance per rack of AMD EPYC 9755 in new agentic AI CPU tests"
+    }
+   ],
+   "components": [
+    {
+     "label": "Loss of control",
+     "value": 11.8
+    },
+    {
+     "label": "AGI / ASI progress",
+     "value": 5
+    },
+    {
+     "label": "Pauses & kill switches",
+     "value": -3.3
+    },
+    {
+     "label": "Race dynamics",
+     "value": 0.2
+    }
+   ],
+   "basedOn": 10,
+   "scoredByAI": 13,
+   "computedAt": 1792454400000
+  }
  }
 ]

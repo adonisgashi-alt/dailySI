@@ -1089,5 +1089,106 @@
    "scoredByAI": 13,
    "computedAt": 1792454400000
   }
+ },
+ {
+  "date": "2026-10-21",
+  "replacement": {
+   "meter": "replacement",
+   "index": 62,
+   "level": "High",
+   "raw": 57,
+   "news": 49,
+   "anchor": {
+    "index": 64,
+    "parts": [
+     {
+      "label": "Job postings in AI-exposed work",
+      "value": 0.831,
+      "index": 72,
+      "source": "Indeed Hiring Lab via FRED; software, customer service and admin postings vs all postings, Feb 2020 = 1",
+      "asOf": "2026-10-16"
+     },
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.16,
+      "index": 56,
+      "source": "Epoch AI notable models from companies; 58 in the last 180 days vs 101 in the year before",
+      "asOf": "2026-10-07"
+     }
+    ]
+   },
+   "pressure": 0.8,
+   "relief": 2.1,
+   "drivers": [
+    {
+     "label": "Regulation & oversight",
+     "delta": -1.4816866665510604,
+     "storyId": "1b728qnj7shm",
+     "headline": "US bans use of China’s DeepSeek AI tools by government agencies"
+    },
+    {
+     "label": "Worker pushback",
+     "delta": -0.6581287036035313,
+     "storyId": "1hgufd9q9nqf",
+     "headline": "OpenAI CEO Sam Altman wins dismissal of sister's lawsuit"
+    }
+   ],
+   "components": [
+    {
+     "label": "Regulation & oversight",
+     "value": -1.5
+    },
+    {
+     "label": "Worker pushback",
+     "value": -0.7
+    },
+    {
+     "label": "Autonomous agents",
+     "value": 0.6
+    },
+    {
+     "label": "White-collar exposure",
+     "value": 0.1
+    },
+    {
+     "label": "Automation",
+     "value": 0.1
+    }
+   ],
+   "basedOn": 9,
+   "scoredByAI": 9,
+   "computedAt": 1792540800000
+  },
+  "extinction": {
+   "meter": "extinction",
+   "index": 36,
+   "level": "Guarded",
+   "raw": 32,
+   "news": 31,
+   "anchor": {
+    "index": 34,
+    "parts": [
+     {
+      "label": "Pace of AI model releases",
+      "value": 1.16,
+      "index": 34,
+      "source": "Epoch AI notable models from companies; 58 in the last 180 days vs 101 in the year before",
+      "asOf": "2026-10-07"
+     }
+    ]
+   },
+   "pressure": 0.1,
+   "relief": 0,
+   "drivers": [],
+   "components": [
+    {
+     "label": "Loss of control",
+     "value": 0.1
+    }
+   ],
+   "basedOn": 1,
+   "scoredByAI": 9,
+   "computedAt": 1792540800000
+  }
  }
 ]

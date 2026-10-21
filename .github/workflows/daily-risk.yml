@@ -3,8 +3,8 @@ name: Daily risk reading
 # Records the day's AI Replacing Humans and AI Extinction Risk readings in
 # data/risk-history.json. The site reads it straight from the repo.
 on:
-  schedule:
-    - cron: "7 0 * * *" # 00:07 UTC, just after the daily cut
+  # Scheduled runs turned off (site paused). Run manually from the Actions tab,
+  # or put the schedule back to turn automation on again.
   workflow_dispatch:
     inputs:
       indicators_only:

@@ -4,8 +4,8 @@ name: Health check
 # opens (or updates) a GitHub issue, which emails the repo owner; when the
 # site recovers it closes the issue.
 on:
-  schedule:
-    - cron: "23 */6 * * *"
+  # Scheduled runs turned off (site paused). Run manually from the Actions tab,
+  # or put the schedule back to turn automation on again.
   workflow_dispatch:
 
 permissions:

@@ -4,8 +4,8 @@ name: Archive stories
 # The site reads the archive straight from the repo; vercel.json skips
 # rebuilding the site for data-only commits.
 on:
-  schedule:
-    - cron: "11,41 * * * *" # every 30 minutes
+  # Scheduled runs turned off (site paused). Run manually from the Actions tab,
+  # or put the schedule back to turn automation on again.
   workflow_dispatch:
 
 permissions:

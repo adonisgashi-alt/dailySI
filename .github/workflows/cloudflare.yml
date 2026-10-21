@@ -4,11 +4,8 @@ name: Deploy to Cloudflare Pages
 # every hour and on every code change. Does nothing until the
 # CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets are set.
 on:
-  schedule:
-    - cron: "29 * * * *"
-  push:
-    branches: [main]
-    paths-ignore: ["data/**"]
+  # Scheduled runs turned off (site paused). Run manually from the Actions tab,
+  # or put the schedule back to turn automation on again.
   workflow_dispatch:
 
 permissions:
